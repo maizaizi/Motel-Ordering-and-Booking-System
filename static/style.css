@@ -1,0 +1,675 @@
+* {
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "segoe ui", roboto, oxygen, ubuntu, cantarell, "fira sans", "droid sans", "helvetica neue", Arial, sans-serif;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+main {
+    margin-top: 80px;
+    flex: 1;
+}
+
+html,
+body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+
+}
+
+/* logo */
+.logo {
+    max-height: 100px;
+    max-width: 100%;
+}
+
+/* top nav bar */
+.navbar {
+    padding: 0.5rem 1rem;
+    /* Reduce padding inside the navbar */
+    background-color: #cc9b6d;
+}
+
+.navbar-brand img {
+    height: 60px;
+    /* Adjust logo size */
+}
+
+.navbar-nav .nav-link {
+    font-size: 1rem;
+    /* Reduce the font size of navbar links */
+    color: rgb(0, 0, 0);
+    /* Text color for navbar links */
+}
+
+.navbar-nav .nav-link:hover {
+    /* color: #795b35; */
+    color: #ffffff;
+    /* Change color to brown when hovered */
+}
+
+.nav-text {
+    color: black !important;
+}
+
+/* dashboard side bar */
+.sidebar {
+    top: 0;
+    bottom: 0;
+    left: 0;
+    padding: 58px 0 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 240px;
+    background-color: #DAB88B;
+    height: 100%;
+    position: fixed;
+    overflow-y: auto;
+    z-index: 1;
+}
+
+div.content {
+    margin-left: 240px;
+    padding: 1px 16px;
+    height: auto;
+    min-height: 1000px;
+}
+
+/* side bar image profile */
+.rounded-circle-2 {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
+/* top bar image profile */
+.rounded-circle-1 {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.list-group-item.list-group-item-action {
+    background-color: #DAB88B !important;
+    color: rgb(0, 0, 0) !important;
+}
+
+.list-group-item.list-group-item-action:hover {
+    background-color: #e6d3b4 !important;
+}
+
+.list-group-item.list-group-item-action:active {
+    background-color: #ddd4c5 !important;
+}
+
+/* responsive design */
+/* tablet display */
+@media screen and (max-width: 768px) { 
+        .sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+        }
+        .sidebar a {float: left;}
+        div.content {margin-left: 0;}
+}
+
+@media (max-width: 600px) {
+        .sidebar {
+            width: 100%;
+            height: auto;
+            position: relative;
+            display: block !important;
+        }
+        .sidebar a {
+            float: none;
+            display: block;
+            width: 100%;
+        }
+        .col-md-4 {
+            margin-bottom: 20px;
+        }
+}
+
+/* mobile display */
+@media screen and (max-width: 425px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    .sidebar a {float: left;}
+    div.content {margin-left: 0;}
+
+    .col-md-4 {
+        margin-bottom: 20px;
+    }
+}
+
+/* dropdown */
+.dropdown-toggle {
+    text-decoration: none;
+    color: #ffffff;
+}
+
+.dropdown-item:hover {
+    background-color: #DAB88B; 
+    color: #ffffff; 
+}
+
+/* homepage */
+.header-image {
+    padding-top: 200px;
+    padding-bottom: 300px;
+    background-color: #f2dac3;
+    background-image: url('./home/header.jpg');
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+}
+
+.heading {
+    font-size: 60px;
+}
+
+.bottom-image {
+    background-image: url('./home/bottom.jpg');
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+    position: relative;
+    padding: 7em 0;
+}
+
+.bg-light {
+    background-color: #fff7ef !important;
+    /* Override Bootstrap's default light background color */
+}
+
+.room .img-wrap img {
+    -webkit-transition: .5s all ease-in-out;
+    -o-transition: .5s all ease-in-out;
+    transition: .5s all ease-in-out;
+    -webkit-transform: scale(1);
+    -ms-transform: scale(1);
+    transform: scale(1);
+}
+
+.room:hover .img-wrap img,
+.room:focus .img-wrap img {
+    -webkit-transform: scale(1.05);
+    -ms-transform: scale(1.05);
+    transform: scale(1.05);
+}
+
+/* buttons */
+.btn-theme {
+    background-color: #795b35;
+    color: #fff7ef;
+}
+
+.btn-theme:hover {
+    background-color: #9a7d56;
+    color: #fff7ef;
+}
+
+/* buttons 2*/
+.btn-theme-2 {
+    background-color: #8ac2df;
+    color: #fff7ef;
+}
+
+.btn-theme-2:hover {
+    background-color: #99d3f0;
+    color: #fff7ef;
+}
+
+/* dashboard - homepage card image size */
+.da-card-img-top {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+/* footer */
+.footer-content {
+    background-color: #f2dac3; /* Dark background for the footer */
+    color: rgb(0, 0, 0);  /* Text color for the footer */
+    text-align: center;  /* Center the text inside the footer */
+    padding: 1rem 0;  /* Padding inside the footer */
+    margin-top: auto;  /* Pushes the footer to the bottom of the container */
+    z-index: 2;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Adjusts alignment of the entire row */
+    align-items: stretch; /* Ensures all children of the row stretch to the same height */
+  }
+  
+  .col-md-6.col-lg-4 {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .img-wrap img {
+    width: 100%;  /* Ensures the image takes up all horizontal space of its container */
+    height: 200px;  /* Sets a fixed height for all images */
+    object-fit: cover;  /* Ensures the image covers the area without distorting aspect ratio */
+  }
+  
+  .img-fluid {
+    width: 100%; /* Ensures the image takes up all horizontal space */
+    height: auto; /* Keeps image aspect ratio intact */
+    margin-bottom: 1rem;
+  }
+  
+/* product section */
+  .Food-info {
+    flex-grow: 1;
+    display: flex;
+    padding: 20px;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: center; 
+  }
+
+.card-header {
+    padding: 0.5rem 1.35rem;
+    margin-bottom: 0;
+    background-color: #f2dac3 !important;
+}
+
+.custom-title {
+    font-size: 1rem;
+    color: #000000;
+}
+
+
+/* service section */
+.services__item {
+      text-align: center; /* Center align the text under the images */
+      padding: 10px; /* Adds space inside each service item */
+      margin-bottom: 20px; /* Adds space between rows of service items */
+  }
+
+  .services__item img {
+      width: 60px; /* Adjusted width for better visibility */
+      height: auto; /* Maintain aspect ratio */
+      display: block; /* Ensures the image is block level to take full width of container */
+      margin: 0 auto 10px; /* Center image and add space between image and text */
+  }
+
+  .about__text p {
+      text-align: justify; /* Justify text for better alignment */
+      margin-bottom: 15px; /* Add space between paragraphs */
+  }
+.about {
+    background-color: #fff7ef;
+}
+.about-image {
+    padding-top: 100px;
+    padding-bottom: 200px;
+    background-color: #f2dac3;
+    background-image: url('./about/header2.jpeg');
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+}
+
+.about_area {
+    padding-top: 150px;
+    padding-bottom: 100px
+}
+
+@media (max-width: 767px) {
+    .about_area {
+        padding-top:40px;
+        padding-bottom: 40px
+    }
+    .about_area .about_info a {
+        margin-bottom:30px
+    }
+}
+
+.about_area .about_info p {
+    font-size: 16px;  
+    line-height: 28px;
+    margin-top: 50px;
+    margin-bottom: 47px;
+    text-align: justify; 
+    padding-left: 0px;  
+    padding-right: 20px;
+}
+
+.about_area .about_thumb {
+    -webkit-justify-content: flex-end;
+    -moz-justify-content: flex-end;
+    -ms-justify-content: flex-end;
+    justify-content: flex-end;
+    -ms-flex-pack: flex-end
+}
+
+.about_area .about_thumb img {
+    width: 100%
+}
+
+.about_area .about_thumb .img_1 {
+    width: 80%;  
+    margin-top: 0px;
+    margin-bottom:100px; 
+    margin-right: 20px; 
+}
+
+.about_area .about_thumb .img_2 {
+    width: 80%;  
+    margin-top: 50px;
+    margin-bottom:80px;  
+    margin-left: 10px;  
+}
+
+
+.carousel-item img {
+    max-width: 80%; 
+    height: auto; 
+    display: block; 
+    margin: 0 auto; 
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .about_area {
+        padding-top:80px;
+        padding-bottom: 80px
+    }
+    .about_area .about_thumb {
+        -webkit-justify-content:flex-start;
+        -moz-justify-content: flex-start;
+        -ms-justify-content: flex-start;
+        justify-content: flex-start;
+        -ms-flex-pack: flex-start;
+        margin-top: 30px
+    }
+    .about_area .about_thumb2 {
+        margin-bottom:30px
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1200px) {
+    .about_area {
+        padding-top:100px;
+        padding-bottom: 100px
+    }
+}
+
+
+/* policy section*/
+.policy-section {
+    display: flex;
+    padding: 40px;  
+    justify-content: space-between; 
+}
+
+.policy-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 50px; 
+    width: 75%; 
+    padding-top: 60px;
+    padding-bottom: 60px; /* Added padding at the bottom for vertical space */
+}
+
+.section-title {
+    width: 25%; /* Adjust width as needed */
+    padding-top: 20px; /* Reduced top padding for alignment */
+    text-align: center; /* Centers the title text */
+}
+.section-title h1 {
+    white-space: nowrap;
+}
+
+.flip-card {
+    background-color: transparent;
+    height: 250px; /* Reduced height */
+    width: 100%; /* Ensure it fills column */
+    perspective: 1000px;
+    margin: 0 auto; /* Centers the card horizontally */
+}
+
+.flip-card-inner {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+
+.flip-card-front {
+    background-color: #DAB88B;
+    color: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flip-card-back {
+    background-color: #ffffff;
+    color: #333;
+    transform: rotateY(180deg);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.flip-card:hover .flip-card-inner {
+    transform: rotateY(180deg);
+}
+@media (min-width: 768px) { /* Tablets and up */
+    .policy-section {
+        flex-direction: row; /* Horizontal layout */
+        justify-content: space-between; /* Space between title and cards */
+    }
+
+    .section-title {
+        width: 25%; /* Smaller width for side column */
+    }
+
+    .policy-container {
+        width: 75%; /* Larger width for cards */
+    }
+}
+
+@media (max-width: 767px) { /* Smaller devices */
+    .policy-container {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjust card size for small screens */
+    }
+}
+
+
+/* team section*/
+.team-section {
+    background-color: #f8f9fa; /* Adjust the background color to match your theme */
+    padding: 40px 0; /* Consistent vertical padding */
+}
+
+.team-member {
+    background: #ffffff; /* Use a cleaner background color if needed */
+    padding: 25px; /* Slightly increased padding */
+    border-radius: 12px; /* Smoother border radius */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Softer shadow for a more subtle depth */
+    text-align: center;
+    transition: all 0.3s ease-in-out; /* Smooth all transitions */
+}
+
+.team-member:hover {
+    transform: translateY(-10px); /* More noticeable hover effect */
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1); /* Stronger shadow on hover */
+}
+
+.team-member img {
+    width: 140px; /* Larger image size */
+    height: 140px; /* Keep aspect ratio */
+    border-radius: 50%; /* Circular images */
+    margin-bottom: 20px; /* More space below the image */
+}
+
+.team-member h4 {
+    margin-top: 15px; /* More space above the name */
+    color: #333333; /* Ensuring readable text color */
+    font-size: 18px; /* Larger font size for names */
+}
+
+.team-member p {
+    color: #666666; /* Slightly darker for better readability */
+    font-size: 16px; /* Larger font size for roles */
+}
+
+
+/* get in touch section*/
+.find-container {
+    max-width: 1200px; /* Limit the maximum width */
+    margin: auto; /* Center align the container */
+    padding: 20px;
+}
+
+.find-container h2 {
+    margin-bottom: 40px; /* Space below headings */
+}
+
+.map-container {
+    margin-bottom: 20px; /* Space below the map */
+}
+
+.form-group {
+    margin-bottom: 30px;  
+}
+.form-control {
+    border: 1px solid #ccc;
+    border-radius: 4px; 
+    padding: 10px; 
+    margin-bottom: 15px; 
+}
+
+.fully-booked {
+    background-color: #ccc;
+    color: #333;
+    padding: 10px;
+    text-align: center;
+}
+
+/* table style */
+.table th, .table td {
+    /* border: 1px solid #8d8d8d; */
+    padding: 8px;
+    text-align: center;
+    }
+    
+        .table th {
+        background-color: #DAB88B !important;
+        color: white !important;
+        }
+
+/* card box effect */
+.card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+.card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+/* card hover effect */
+.card-img {
+    position: relative;
+}
+
+.card-img::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: transparent;
+    transition: background-color 0.3s ease;
+    z-index: 1;
+}
+
+a:hover .card-img::after {
+    background-color: rgba(0, 0, 0, 0.5); /* Change this to the color you want */
+}
+
+
+/* cart section*/
+.thumbnail {
+    width: 150px; 
+    height: 150px; 
+    object-fit: cover;
+    border-radius: 5px; 
+    padding: 5px; 
+}
+
+.btn-custom {
+    background-color: #cc9b6d; 
+    color: white; 
+    border: none; 
+}
+
+.btn-custom:hover {
+    background-color: #bb9667; 
+    color: white; 
+}
+
+.quantity-container .input-group-prepend button,
+.quantity-container .input-group-append button,
+.quantity-container .form-control {
+    height: 38px; 
+    vertical-align: middle; 
+}
+
+.quantity-container .form-control {
+    text-align: center; 
+    padding: 0; 
+    line-height: 38px; 
+}
+
+.quantity-container .btn {
+    padding: 0 10px; 
+}
+.product-image {
+    width: 100%;
+    height: 200px; 
+    object-fit: cover; 
+}
+.custom-margin-top {
+    margin-top: 100px; 
+}
+
+.card-container {
+    height: 100%;
+}
+
+.card-custom {
+    width: 150px; 
+    margin: 5px; 
+}
+.cancelled {
+    color: red;
+}
+
+.collected {
+    color: green;
+}

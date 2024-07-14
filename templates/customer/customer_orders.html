@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<div class="content">
+    <!-- insert customer_top_nav.html -->
+    {% include 'dashboard_nav/customer_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- insert customer_side_nav.html -->
+            {% include 'dashboard_nav/customer_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <h1 class="mb-4">My Orders</h1>
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="custom-title">My Orders</h2>
+                    </div>
+                    <div class="card-body">
+                        <h3>Active Orders</h3>
+                        {% if orders %}
+                        <table class="table table-striped">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Total Price</th>
+                                    <th>Status</th>
+                                    <th>Created At</th>
+                                    <th>Scheduled Pickup Time</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr>
+                                    <td>{{ order.order_id }}</td>
+                                    <td>${{ order.total_price }}</td>
+                                    <td>{{ order.status | title }}</td>
+                                    <td>{{ order.created_at | format_time }}</td>
+                                    <td>{{ order.scheduled_pickup_time | format_time }}</td>
+                                    <td>
+                                        <button class="btn btn-custom btn-sm" onclick="showOrderDetails({{ order.order_id }})">View Details</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>No active orders found.</p>
+                        {% endif %}
+                        <h3>Order History</h3>
+                        {% if history_orders %}
+                        <div class="accordion" id="historyOrdersAccordion">
+                            {% for order in history_orders %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingHistory{{ order.order_id }}">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHistory{{ order.order_id }}" aria-expanded="false" aria-controls="collapseHistory{{ order.order_id }}">
+                                        Order ID: {{ order.order_id }} - Total Price: ${{ order.total_price }} - Status: 
+                                        <span class="{% if order.status == 'cancelled' %}cancelled{% elif order.status == 'collected' %}collected{% endif %}">{{ order.status | title }}</span>
+                                    </button>
+                                </h2>
+                                <div id="collapseHistory{{ order.order_id }}" class="accordion-collapse collapse" aria-labelledby="headingHistory{{ order.order_id }}" data-bs-parent="#historyOrdersAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>Created At:</strong> {{ order.created_at | format_time }}</p>
+                                        <p><strong>Scheduled Pickup Time:</strong> {{ order.scheduled_pickup_time | format_time }}</p>
+                                        <div class="order-items mt-3 d-flex flex-wrap">
+                                            {% for item in history_order_items if item.order_id == order.order_id %}
+                                            <div class="order-item card mb-3 card-custom">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">{{ item.product_name }}</h5>
+                                                    <img src="{{ url_for('static', filename='product/' + (item.product_image or 'default.jpg')) }}" alt="{{ item.product_name }}" class="img-fluid mb-3 thumbnail">
+                                                    <p class="card-text"><strong>Quantity:</strong> {{ item.quantity }}</p>
+                                                    <p class="card-text"><strong>Options:</strong> {{ item.options }}</p>
+                                                    {% if item.rate %}
+                                                    <p class="card-text"><strong>Rating:</strong> {{ item.rate }}</p>
+                                                    <p class="card-text"><strong>Description:</strong> {{ item.description }}</p>
+                                                    <p class="card-text"><strong>Submitted on:</strong> {{ item.feedback_created_at.strftime('%d-%m-%Y') }}</p>
+                                                    {% else %}
+                                                    <p class="card-text text-muted">No feedback yet.</p>
+                                                    {% endif %}
+                                                    {% if order.status == 'collected' %}
+                                                    <button class="btn btn-secondary btn-sm" data-order-id="{{ order.order_id }}" data-order-item-id="{{ item.order_item_id }}" onclick="showFeedbackModal(this)">Leave Feedback</button>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p>No historical orders found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Order details will be loaded here via JavaScript -->
+                <div id="orderDetailsContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" role="dialog" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel">Submit Feedback</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="feedbackForm" action="{{ url_for('customer.submit_feedback') }}" method="POST">
+                    <input type="hidden" name="order_item_id" id="order_item_id">
+                    <input type="hidden" name="order_id" id="order_id">
+                    <div class="form-group">
+                        <label for="rate">Rate:</label>
+                        <select name="rate" class="form-control">
+                            <option value="1">1 - Very Bad</option>
+                            <option value="2">2 - Bad</option>
+                            <option value="3">3 - Average</option>
+                            <option value="4">4 - Good</option>
+                            <option value="5" selected>5 - Excellent</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea name="description" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-custom">Submit Feedback</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showOrderDetails(orderId) {
+    fetch(`/customer/order_details/${orderId}`)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('orderDetailsContent').innerHTML = data;
+            var orderDetailsModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+            orderDetailsModal.show();
+        })
+        .catch(error => console.error('Error fetching order details:', error));
+}
+
+function showFeedbackModal(button) {
+    var orderId = button.getAttribute('data-order-id');
+    var orderItemId = button.getAttribute('data-order-item-id');
+    
+    document.getElementById('order_id').value = orderId;
+    document.getElementById('order_item_id').value = orderItemId;
+
+    var feedbackModal = new bootstrap.Modal(document.getElementById('feedbackModal'));
+    feedbackModal.show();
+}
+</script>
+
+{% endblock %}

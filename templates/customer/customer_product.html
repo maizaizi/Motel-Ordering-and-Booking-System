@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block content %}
+    <!-- insert customer_top_nav.html -->
+    {% include 'dashboard_nav/customer_top_nav.html' %}
+    <div class="container-fluid custom-margin-top">
+        <div class="row">
+            <div class="row">
+                <div class="col-xs-12 col-sm-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="custom-title">Categories</h5>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            {% for category in categories %}
+                            <a href="{{ url_for('customer.product', category_id=category.category_id) }}" class="list-group-item list-group-item-action">{{ category.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-9">
+                    <div class="row">
+                        {% for product in products %}
+                        <div class="col-md-3 mb-4 d-flex align-items-stretch">
+                            <div class="card h-100">
+                                <img src="{{ url_for('static', filename='product/' + (product.image or 'default.jpg')) }}" class="card-img-top product-image" alt="{{ product.name }}">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">{{ product.name }}</h5>
+                                    <p class="card-text">${{ product.unit_price }}</p>
+                                    {% if product.out_of_stock %}
+                                    <p class="text-danger">Out of Stock</p>
+                                    {% elif product.infinite_stock %}
+                                    <p class="text-success">In Stock</p>
+                                    {% elif product.quantity <= 10 %}
+                                    <p class="text-warning">Low Stock</p>
+                                    {% else %}
+                                    <p class="text-success">Stock: {{ product.quantity }}</p>
+                                    {% endif %}
+                                    {% if not product.out_of_stock %}
+                                    <form method="post" action="{{ url_for('customer.add_cart') }}">
+                                        <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                                        <div class="form-group">
+                                            <label for="quantity_{{ product.product_id }}">Quantity</label>
+                                            <input type="number" name="quantity" id="quantity_{{ product.product_id }}" class="form-control" value="1" min="1">
+                                        </div>
+                                        {% if product.product_id in product_options %}
+                                            {% for option_type, options in product_options[product.product_id].items() %}
+                                                {% if options[0].option_type != 'No Option' %}
+                                                    <div class="form-group">
+                                                        <label>{{ options[0].option_type }}</label>
+                                                        <select name="option_id_{{ option_type }}" class="form-control">
+                                                            <option value="">Select {{ options[0].option_type }}</option>
+                                                            {% for option in options %}
+                                                                {% if options[0].option_type == 'Size' and option.option_name == 'Small' %}
+                                                                    <option value="{{ option.option_id }}" selected>{{ option.option_name }} (+${{ option.additional_cost }})</option>
+                                                                {% else %}
+                                                                    <option value="{{ option.option_id }}">{{ option.option_name }} (+${{ option.additional_cost }})</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                        <button type="submit" class="btn btn-theme btn-block">Add to Cart</button>
+                                    </form>                                        
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

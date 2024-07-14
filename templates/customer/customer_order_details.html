@@ -1,0 +1,73 @@
+{% if order and order_items %}
+<div class="row">
+    <div class="col-md-12">
+        <strong>Status:</strong>
+        <div class="progress" style="height: 50px;">
+            <div class="progress-bar 
+                {% if order.status == 'ordered' %}
+                    bg-info
+                {% elif order.status == 'preparing' %}
+                    bg-warning
+                {% elif order.status == 'ready for collection' %}
+                    bg-success
+                {% else %}
+                    bg-secondary
+                {% endif %}"
+                role="progressbar"
+                style="width: 
+                {% if order.status == 'ordered' %}
+                    25%
+                {% elif order.status == 'preparing' %}
+                    50%
+                {% elif order.status == 'ready for collection' %}
+                    75%
+                {% else %}
+                    100%
+                {% endif %}; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                font-size: 1rem; 
+                white-space: nowrap;"
+                aria-valuenow="{% if order.status == 'ordered' %}25{% elif order.status == 'preparing' %}50{% elif order.status == 'ready for collection' %}75{% else %}100{% endif %}" 
+                aria-valuemin="0" 
+                aria-valuemax="100">
+                {% if order.status == 'ordered' %}
+                    <i class="fas fa-shopping-cart"></i> Ordered
+                {% elif order.status == 'preparing' %}
+                    <i class="fas fa-clock"></i> Preparing
+                {% elif order.status == 'ready for collection' %}
+                    <i class="fas fa-check-circle"></i> Ready for Collection
+                {% elif order.status == 'collected' %}
+                    <i class="fas fa-box"></i> Collected
+                {% elif order.status == 'cancelled' %}
+                    <i class="fas fa-times-circle"></i> Cancelled
+                {% endif %}
+            </div>
+        </div>
+        <p><strong>Special Requests:</strong> {{ order.special_requests }}</p>
+        <p><strong>Promotion Code Used:</strong> {{ promo_code_display }}</p>
+        <h4>Order Items</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                <tr>
+                    <td>{{ item.product_name | title }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.options | title }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<p>Order details not available.</p>
+{% endif %}

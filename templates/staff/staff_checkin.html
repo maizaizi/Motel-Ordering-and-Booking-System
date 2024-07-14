@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Staff Dashboard{% endblock %}
+
+{% block content %}
+<div class="content">
+    <!-- insert staff_top_nav.html -->
+    {% include 'dashboard_nav/staff_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- insert staff_side_nav.html -->
+            {% include 'dashboard_nav/staff_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <h1 class="mb-4">Update and Check-in Bookings</h1>
+                <form method="POST" action="{{ url_for('staff.view_checkin_bookings') }}" class="booking-form mb-4">
+                    <div class="form-group">
+                        <label for="selected_date" class="mb-3">Select the Booking Date</label>
+                        <input type="date" class="form-control short-input" name="selected_date" value="{{ selected_date }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-theme">View Bookings</button>
+                    <a href="{{ url_for('staff.view_all_bookings') }}" class="btn btn-custom">Quick View All Bookings</a>
+                </form>
+                
+                {% if bookings %}
+                    <div class="row">
+                        {% for booking in bookings %}
+                            <div class="col-md-6">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <h2 class="card-title">{{ booking.accommodation_type }} Room</h2>
+                                    </div>
+                                    <div class="card-body">
+                                        <p><strong>Guest Name:</strong> {{ booking.first_name | capitalize }} {{ booking.last_name | capitalize }}</p>
+                                        <p><strong>Check-in Date:</strong> {{ booking.start_date | format_date }}</p>
+                                        <p><strong>Check-out Date:</strong> {{ booking.end_date | format_date }}</p>
+                                        <p><strong>Booked Nights:</strong> {{ (booking.end_date - booking.start_date).days }}</p>
+                                        <p><strong>Adults:</strong> {{ booking.adults }}</p>
+                                        <p><strong>Children:</strong> {{ booking.children}}</p>
+                                        <p><strong>Paid Amount:</strong> ${{ booking.paid_amount }}</p>
+                                        <p><strong>Status:</strong> {{ booking.status | title }}</p>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="{{ url_for('staff.update_booking', booking_id=booking.booking_id) }}" class="btn btn-theme">Update and Check In</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No bookings found for selected date.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

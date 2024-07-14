@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Staff Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="content">
+    <!-- insert staff_top_nav.html -->
+    {% include 'dashboard_nav/staff_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- insert staff_side_nav.html -->
+            {% include 'dashboard_nav/staff_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <h1>Welcome {{ staff_info.first_name | capitalize }} {{ staff_info.last_name | capitalize }}!</h1>
+                <p>Position: {{ staff_info.position }}</p>
+                <p>Staff ID: {{ staff_info.staff_id }}</p>
+                <div class="row mt-5">
+                    <h2>Management Tools</h2>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card card-container">
+                                <img src="{{ url_for('static', filename='images/s1.png') }}" class="da-card-img-top" alt="Manage Order">
+                                <div class="card-body">
+                                    <h5 class="card-title">Manage Order</h5>
+                                    <a href="{{ url_for('staff.manage_orders') }}" class="btn btn-theme">Click</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card card-container">
+                                <img src="{{ url_for('static', filename='images/s2.jpg') }}" class="da-card-img-top" alt="Manage Bookings">
+                                <div class="card-body">
+                                    <h5 class="card-title">Manage Bookings</h5>
+                                    <a href="{{ url_for('staff.view_all_bookings') }}" class="btn btn-theme">Click</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card card-container">
+                                <img src="{{ url_for('static', filename='images/m3.jpg') }}" class="da-card-img-top" alt="Update Inventory Stock">
+                                <div class="card-body">
+                                    <h5 class="card-title">Update Inventory Stock</h5>
+                                    <a href="{{ url_for('staff.monitor_inventory') }}" class="btn btn-theme">Click</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card card-container">
+                                <img src="{{ url_for('static', filename='images/chat.png') }}" class="da-card-img-top" alt="Chat with Customers">
+                                <div class="card-body">
+                                    <h5 class="card-title">Chat with Customers</h5>
+                                    <a href="{{ url_for('staff.list_customers') }}" class="btn btn-theme">Click</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,450 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block content %}
+<div class="content">
+    <!-- insert customer_top_nav.html -->
+    {% include 'dashboard_nav/customer_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- insert customer_side_nav.html -->
+            {% include 'dashboard_nav/customer_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+
+                {% if cart_items|length == 0 %}
+                <!-- Start Empty Cart Section -->
+                <div class="empty-cart-section text-center">
+                    <h2>Your cart is currently empty.</h2>
+                    <a href="{{ url_for('customer.product') }}" class="btn btn-theme mt-3">Continue Shopping</a>
+                </div>
+                <!-- End Empty Cart Section -->
+                {% else %}
+
+                <!-- Start Cart-head Section -->
+                <div class="cart-head mb-3"> 
+                    <div class="container">
+                        <div class="row justify-content-between">
+                            <div class="col-lg-5">
+                                <div class="intro-excerpt">
+                                    <h1 style="color: #795b35;">Your Cart</h1>
+                                </div>
+                            </div>
+                            <div class="col-lg-7 d-flex justify-content-end">
+                                <a href="{{ url_for('customer.product') }}" class="btn btn-theme"> Continue Shopping</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Cart-head Section -->
+
+                <!-- Start Cart-item Section -->
+                <div class="cart before-footer-section">
+                    <div class="container">
+                        <div class="row mb-5">
+                            <div class="site-blocks-table">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="cart-thumbnail">Image</th>
+                                            <th class="cart-name">Product</th>
+                                            <th class="cart-options">Options</th>
+                                            <th class="cart-price">Price</th>
+                                            <th class="cart-quantity">Quantity</th>
+                                            <th class="cart-total">Total</th>
+                                            <th class="cart-remove">Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in cart_items %}
+                                        <tr>
+                                            <td class="cart-thumbnail">
+                                                <img src="{{ url_for('static', filename='product/' + item.image) }}" alt="{{ item.product_name }}" class="img-fluid img-thumbnail" style="width: 150px; height: auto;">
+                                            </td>
+                                            <td class="cart-name">
+                                                <h2 class="h5 text-black">{{ item.product_name }}</h2>
+                                            </td>
+                                            <td class="cart-options">
+                                                <ul style="list-style-type: none;">
+                                                    {% for option, cost in item.options_with_costs %}
+                                                    <li>{{ option }} (${{ cost }})</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                            <td>${{ item.unit_price }}</td>
+                                            <td>
+                                                <span class="quantity-display">{{ item.quantity }}</span>
+                                            </td>
+                                                                 
+                                            <td>${{ item.total }}</td>
+                                            <td>
+                                                <form action="{{ url_for('customer.remove_from_cart') }}" method="post" style="display: inline;">
+                                                    <input type="hidden" name="cart_item_id" value="{{ item.cart_item_id }}">
+                                                    <button type="submit" class="btn btn-theme btn-sm" onclick="return confirm('Are you sure you want to remove this item from the cart?');">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Cart-item Section -->
+
+                <!-- Start Cart-payment Section -->
+                <div class="row">
+                    <div class="col-md-6">
+
+                        <div class="row">
+                            <form id="promo-code-form" action="{{ url_for('customer.apply_promo_code') }}" method="post" class="d-flex">
+                                <div class="col-md-8 mb-3 mb-md-0">
+                                    <input type="text" class="form-control py-3" id="promo_code" name="promo_code" placeholder="Promotion Code">
+                                </div>
+                                <div class="col-md-4 mb-3 d-flex align-items-center">
+                                    <button type="submit" id="apply_promo" class="btn btn-custom ms-2">Apply Promotion Code</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="row custom-margin">
+                            <div class="col-md-6">
+                                <label for="scheduled_pickup_date" class="form-label">Pick Up Date</label>
+                                <input type="date" class="form-control" id="scheduled_pickup_date" name="scheduled_pickup_date" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="scheduled_pickup_time" class="form-label">Pick Up Time</label>
+                                <select class="form-control" id="scheduled_pickup_time" name="scheduled_pickup_time" required>
+                                    <!-- Options will be populated by JavaScript -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row custom-margin">
+                            <div class="col-md-12">
+                                <label for="special_requests" class="text-black">Special Requests</label>
+                                <textarea class="form-control" id="special_requests" name="special_requests" rows="3">{{ special_requests }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 pl-5">
+                        <div class="row justify-content-end">
+                            <div class="col-md-7">
+                                <div class="row">
+                                    <div class="col-md-12 text-right border-bottom mb-5">
+                                        <h3 class="text-black h4 text-uppercase">Cart Totals</h3>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <span class="text-black">Subtotal</span>
+                                    </div>
+                                    <div class="col-md-6 text-right">
+                                        <strong class="text-black">${{ subtotal | round(2) if subtotal is defined else '0.00' }}</strong>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <span class="text-black">GST</span>
+                                    </div>
+                                    <div class="col-md-6 text-right">
+                                        <strong class="text-black">${{ gst | round(2) if gst is defined else '0.00' }}</strong>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <span class="text-black">Discount</span>
+                                    </div>
+                                    <div class="col-md-6 text-right">
+                                        <strong class="text-black">-${{ discount | round(2) if discount is defined else '0.00' }}</strong>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <span class="text-black">Total with GST (15%)</span>
+                                    </div>
+                                    <div class="col-md-6 text-right">
+                                        <strong class="text-black">${{ total | round(2) }}</strong>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button type="button" class="btn btn-custom btn-lg py-3 btn-block" data-bs-toggle="modal" data-bs-target="#checkoutModal">Proceed To Checkout</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Cart-payment Section -->
+                
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Checkout Modal -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="checkoutModalLabel">Checkout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="payment-form" action="{{ url_for('customer.checkout') }}" method="post" class="needs-validation" novalidate>
+                    <input type="hidden" name="special_requests" id="hidden_special_requests">
+                    <input type="hidden" name="scheduled_pickup_time" id="hidden_scheduled_pickup_time">
+                    <input type="hidden" name="promo_code" value="{{ promo_code }}">
+                    <input type="hidden" name="discount" value="{{ discount }}">
+                    <div class="mb-3">
+                        <label for="card_number" class="form-label">Card number:<span class="require-star">*</span></label>
+                        <input type="text" class="form-control" id="card_number" name="card_number" maxlength="19" required>
+                        <div class="invalid-feedback text-start">
+                            Please enter the credit card number.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="card_holder" class="form-label">Name on card:<span class="require-star">*</span></label>
+                        <input type="text" class="form-control" id="card_holder" name="card_holder" pattern="[A-Za-z\s]+" required>
+                        <div class="invalid-feedback text-start">
+                            Please enter the credit card holder name. Only letters and spaces are allowed.
+                        </div>
+                    </div>
+                    <div class="mb-3 row justify-content-between">
+                        <div class="col-5">
+                            <label for="expiry_m" class="form-label">Expire Date:<span class="require-star">*</span></label>
+                            <div class="d-flex">
+                                <div class="col-8 me-2">
+                                    <select id="expiry_m" name="expiry_m" required class="form-select" aria-label="Default select example">
+                                        <option disabled selected value>MM</option>
+                                    </select>
+                                    <div class="invalid-feedback text-start">
+                                        Please select expire month.
+                                    </div>
+                                </div>
+                                <div class="col-8">
+                                    <select id="expiry_y" name="expiry_y" required class="form-select" aria-label="Default select example">
+                                        <option disabled selected value>YY</option>
+                                    </select>
+                                    <div class="invalid-feedback text-start">
+                                        Please select expire year.
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <label for="cvc" class="form-label">CVC:<span class="require-star">*</span></label>
+                            <input type="text" class="form-control" id="cvc" name="cvc" maxlength="3" minlength="3" required>
+                            <div class="invalid-feedback text-start">
+                                Please enter CVC number (3 digits).
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p style="font-size:14px;">We accept Visa, Mastercard and American Express</p>
+                    </div>
+                    <div class="mb-3">
+                        <img src="{{url_for('static',filename='images/visacard-footer.png')}}" alt="visacard" class="card-logo">
+                        <img src="{{url_for('static',filename='images/mastercard-footer.png')}}" alt="mastercard" class="card-logo">
+                        <img src="{{url_for('static',filename='images/americanexpress-footer.png')}}" alt="americanexpress" class="card-logo">
+                    </div>
+                    <div class="row mb-3 justify-content-between">
+                        <div class="text-center py-3 col-5">
+                            <button type="button" class="btn btn-secondary col-12" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                        <div class="text-center py-3 col-5">
+                            <button type="submit" id="submitPayment" class="btn btn-danger col-12">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+    var forms = document.querySelectorAll('.needs-validation');
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+
+document.addEventListener('DOMContentLoaded', function() {
+    const cardHolderInput = document.getElementById('card_holder');
+    cardHolderInput.addEventListener('input', function() {
+        const value = cardHolderInput.value;
+        const regex = /^[A-Za-z\s]+$/;
+        if (regex.test(value)) {
+            cardHolderInput.classList.remove('is-invalid');
+        } else {
+            cardHolderInput.classList.add('is-invalid');
+        }
+    });
+
+    const cardNumberInput = document.getElementById('card_number');
+    const feedbackElement = cardNumberInput.nextElementSibling;
+
+    cardNumberInput.addEventListener('input', function() {
+        const value = cardNumberInput.value.replace(/\D/g, '');
+        if (value.length === 16) {
+            cardNumberInput.classList.remove('is-invalid');
+            cardNumberInput.classList.add('is-valid');
+            feedbackElement.textContent = 'Valid card number';
+            feedbackElement.style.color = 'green';
+        } else {
+            cardNumberInput.classList.remove('is-valid');
+            cardNumberInput.classList.add('is-invalid');
+            feedbackElement.textContent = 'Invalid card number';
+            feedbackElement.style.color = 'red';
+        }
+    });
+
+    var today = new Date();
+    var currentMonth = today.getMonth() + 2; // Current month start with 0
+    var currentYear = today.getFullYear();
+
+    var expiryMonthSelect = document.getElementById('expiry_m');
+    var expiryYearSelect = document.getElementById('expiry_y');
+
+    // Populate next 10 years
+    for (var year = currentYear; year <= currentYear + 10; year++) {
+        var option = document.createElement('option');
+        option.value = year; // Full year
+        option.text = year;
+        expiryYearSelect.appendChild(option);
+    }
+
+    // Poulate months
+    function populateExpiryMonths(selectedYear) {
+        expiryMonthSelect.innerHTML = ''; // Remove all options
+        var startMonth = selectedYear == currentYear ? currentMonth : 1; // Start from current month
+        for (var month = startMonth; month <= 12; month++) {
+            var option = document.createElement('option');
+            option.value = month < 10 ? '0' + month : month;
+            option.text = month < 10 ? '0' + month : month;
+            expiryMonthSelect.appendChild(option);
+        }
+    }
+
+    // When the year changes, update the months
+    expiryYearSelect.addEventListener('change', function() {
+        populateExpiryMonths(parseInt(this.value)); // Use current year
+    });
+});
+
+
+
+document.getElementById('checkoutModal').addEventListener('show.bs.modal', function (event) {
+    var specialRequests = document.getElementById('special_requests').value;
+    var scheduledPickupDate = document.getElementById('scheduled_pickup_date').value;
+    var scheduledPickupTime = document.getElementById('scheduled_pickup_time').value;
+    document.getElementById('hidden_special_requests').value = specialRequests;
+    document.getElementById('hidden_scheduled_pickup_time').value = `${scheduledPickupDate}T${scheduledPickupTime}`;
+
+    if (!scheduledPickupDate || !scheduledPickupTime) {
+        alert('Please select a pickup date and time.');
+        return;
+    }
+
+    var promoCode = document.getElementById('promo_code').value;
+    var discount = "{{ discount }}"; 
+    document.querySelector("input[name='promo_code']").value = promoCode;
+    document.querySelector("input[name='discount']").value = discount;
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    var today = new Date();
+    var tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    var dayAfterTomorrow = new Date(today);
+    dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 2);
+    var threeDaysFromNow = new Date(today);
+    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
+
+    var minDate = tomorrow.toISOString().split('T')[0]; 
+    var maxDate = threeDaysFromNow.toISOString().split('T')[0]; 
+
+    var scheduledPickupDateInput = document.getElementById('scheduled_pickup_date');
+    scheduledPickupDateInput.min = minDate;
+    scheduledPickupDateInput.max = maxDate;
+    scheduledPickupDateInput.value = minDate; 
+
+    var scheduledPickupTimeInput = document.getElementById('scheduled_pickup_time');
+
+    var generateTimeSlots = function(selectedDate) {
+        var availableTimeSlots = [];
+        var currentTime = new Date();
+        var startTime = new Date(selectedDate.getTime());
+        var endTime = new Date(selectedDate.getTime());
+        startTime.setHours(7, 0, 0, 0); 
+        endTime.setHours(22, 0, 0, 0); 
+
+
+        if (selectedDate.toDateString() === today.toDateString()) {
+
+            if (currentTime.getHours() >= 22) {
+                scheduledPickupDateInput.value = ""; 
+                scheduledPickupTimeInput.innerHTML = "";
+                return;
+            }
+
+            currentTime.setMinutes(Math.ceil(currentTime.getMinutes() / 15) * 15, 0, 0);
+
+            if (currentTime.getHours() < 7) {
+                currentTime.setHours(7, 0, 0, 0);
+            }
+        } else {
+            currentTime = startTime; 
+        }
+
+        while (currentTime < endTime) {
+            availableTimeSlots.push(new Date(currentTime));
+            currentTime.setMinutes(currentTime.getMinutes() + 15);
+        }
+
+        return availableTimeSlots.map(function(slot) {
+            var value = slot.toTimeString().slice(0, 5);
+            var text = slot.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            return '<option value="' + value + '">' + text + '</option>';
+        }).join('');
+    }
+
+    scheduledPickupDateInput.addEventListener('change', function() {
+        var selectedDate = new Date(scheduledPickupDateInput.value);
+        scheduledPickupTimeInput.innerHTML = generateTimeSlots(selectedDate);
+    });
+
+    var defaultSelectedDate = new Date(scheduledPickupDateInput.value);
+    scheduledPickupTimeInput.innerHTML = generateTimeSlots(defaultSelectedDate);
+});
+
+
+
+
+document.getElementById('proceed-to-checkout-form').addEventListener('submit', function() {
+    var specialRequests = document.getElementById('special_requests').value;
+    var scheduledPickupDate = document.getElementById('scheduled_pickup_date').value;
+    var scheduledPickupTime = document.getElementById('scheduled_pickup_time').value;
+    document.getElementById('hidden_special_requests').value = specialRequests;
+
+    var scheduledPickupDateTime = `${scheduledPickupDate} ${scheduledPickupTime}`;
+    document.getElementById('hidden_scheduled_pickup_time').value = scheduledPickupDateTime;
+});
+
+
+</script>
+{% endblock %}

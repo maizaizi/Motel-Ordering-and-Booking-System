@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="content">
+    <!-- insert staff_top_nav.html -->
+    {% include 'dashboard_nav/staff_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- insert staff_side_nav.html -->
+            {% include 'dashboard_nav/staff_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <h1 class="mb-4">{{ title }}</h1>
+                <div class="tab-content">
+                    {% if bookings %}
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Check-out Date</th>
+                                    <th>Check-in Date</th>
+                                    <th>Booking ID</th>
+                                    <th>Last Name</th>
+                                    <th>First Name</th>
+                                    <th>Booked Nights</th>
+                                    <th>Room Type</th>
+                                    <th>Paid Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for booking in bookings %}
+                                    <tr>
+                                        <td>{{ booking.end_date | format_date }}</td>
+                                        <td>{{ booking.start_date | format_date }}</td>
+                                        <td>{{ booking.booking_id }}</td>
+                                        <td>{{ booking.last_name | capitalize }}</td>
+                                        <td>{{ booking.first_name | capitalize }}</td>
+                                        <td>{{ (booking.end_date - booking.start_date).days }}</td>
+                                        <td>{{ booking.accommodation_type }}</td>
+                                        <td>${{ booking.paid_amount }}</td>
+                                        <td>{{ booking.status | title }}</td>
+                                        <td>
+                                            <form id="checkoutForm-{{ booking.booking_id }}" action="{{ url_for('staff.checkout_booking', booking_id=booking.booking_id) }}" method="post">
+                                                <input type="hidden" name="confirm_checkout" value="yes">
+                                                <button type="button" class="btn btn-danger btn-sm" onclick="confirmCheckout({{ booking.booking_id }})">Check Out</button>
+                                            </form>
+                                            
+                                            <script>
+                                                function confirmCheckout(bookingID) {
+                                                    if (confirm('Are you sure to check out?')) {
+                                                        document.getElementById('checkoutForm-' + bookingID).submit();
+                                                    }
+                                                }
+                                            </script>
+                                        </td>                                        
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p>No bookings found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

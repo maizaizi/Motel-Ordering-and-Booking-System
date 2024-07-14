@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}404 - Unauthorized Access{% endblock %}
+
+{% block navbar %}
+{% include 'home/home_nav.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center vh-100 flex-column">
+    <h1>Unauthorized Access</h1>
+    <p>You do not have permission to access this page.</p>
+</div>
+{% endblock %}

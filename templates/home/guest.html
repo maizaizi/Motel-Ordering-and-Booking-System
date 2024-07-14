@@ -1,0 +1,341 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to Bruce Bay Beans & Bunks{% endblock %}
+
+{% block navbar %}
+{% include 'home/home_nav.html' %}
+{% endblock %}
+
+{% block content %}
+<style>
+  .modal-dialog.custom-modal {
+    max-width: 100% !important; 
+  }
+
+  @media (min-width: 768px) {
+    .modal-dialog.custom-modal {
+      max-width: 80% !important; 
+    }
+  }
+
+</style>
+<!-- Fixed Header Image -->
+<div class="header-image d-flex align-items-center justify-content-center">
+  <div class="text-center text-white" style="margin-top: 50px;">
+    <h1>A Best Place To Stay for Your Journey</h1>
+    <h2> Bruce Bay Beans & Bunks</h2>
+    <a href="{{ url_for('customer.booking_room') }}" class="btn btn-theme-2">Reserve Now</a>
+    <a href="#product" class="btn btn-theme">Our Food & Drinks</a>
+  </div>
+</div>
+
+<!-- Welcome -->
+<div class="mb-5">
+  <div class="container" style="margin-top: 100px;">
+    <div class="row align-items-center">
+      <div class="col-md-12 col-lg-4 order-lg-1 mx-auto">
+        <h2 class="heading">Welcome to</h2>
+        <h4>Bruce Bay Beans & Bunks!</h4>
+        <p class="mb-4" style="text-align: justify;">At Bruce Bay Beans and Bunks, we're more than just a pit stop on
+          your journey –
+          we're your home away from home on the Haast Highway. Formerly known as the Bruce Bay Coffee
+          Cart, our small family-owned business has expanded to offer not only our signature brews but
+          also cozy accommodations for tired travelers like yourself.</p>
+      </div>
+      <div class="col-md-12 col-lg-5 order-lg-2 mx-auto">
+        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+          <div class="carousel-inner">
+            <div class="carousel-item active">
+              <img src="{{ url_for('static', filename='home/1.jpg') }}" class="d-block w-100" alt="Slide 1">
+            </div>
+            <div class="carousel-item">
+              <img src="{{ url_for('static', filename='home/3.jpg') }}" class="d-block w-100" alt="Slide 2">
+            </div>
+            <div class="carousel-item">
+              <img src="{{ url_for('static', filename='home/dorm.jpg') }}" class="d-block w-100" alt="Slide 3">
+            </div>
+          </div>
+          <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Welcome End -->
+
+<!-- Rooms -->
+<div id="rooms"class="mt-5 bg-light">
+  <div class="container" style="margin-top: 100px;">
+    <div class="row justify-content-center text-center mb-5">
+      <div class="col-md-7">
+        <h2 class="heading mt-5">Our Rooms</h2>
+        <p class="mb-4 mt-3">We're thrilled to offer comfortable accommodations for weary travelers seeking a peaceful
+          night's rest. Choose from our dorm room with four single bunks, perfect for solo adventurers or small groups.
+          Alternatively, opt for our twin room or queen bed with a pull-out sofa, ideal for couples or families
+          traveling
+          together. All guests have access to shared bathroom and kitchen facilities, ensuring your stay is as
+          convenient as it is enjoyable.</p>
+        <h3 class="mb-4 mt-3">
+          <strong>To Reserve rooms please <a href="/login">Login</a> first!</strong>
+        </h3>
+      </div>
+    </div>
+    <div class="row">
+      {% for room in rooms %}
+      <div class="col-md-6 col-lg-4 px-4 mb-5">
+        <!-- <a href="#" class="room"> -->
+          <div class="img-wrap">
+            <img src="{{ url_for('static', filename='home/' + room['image']) }}" alt="1" class="img-fluid mb-3">
+          </div>
+        </a>
+        <div class="p-3 text-center room-info">
+          <h2>{{ room.type }}</h2>
+          <span class="text-uppercase">${{ room['price_per_night'] }} per night</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<!-- Rooms End -->
+
+<!-- Product -->
+<div id="product" class="mt-5">
+  <div class="container" style="margin-top: 100px;">
+    <div class="row justify-content-center text-center mb-5">
+      <div class="col-md-7">
+        <h2 class="heading mt-5">Our Food and Drinks</h2>
+        <p class="mb-4 mt-3">
+          Welcome to our cozy café, where every cup of coffee is brewed to perfection and every bite is crafted with
+          care. From the rich and velvety Espresso to our freshly baked Muffins, our menu is designed to satisfy all your
+          cravings. Come in and treat yourself today!
+        </p>
+        <h3 class="mb-4 mt-3">
+          <strong>To Make Order please <a href="/login">Login</a> first!</strong>
+        </h3>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Coffee & Hot Drinks Section -->
+      <div class="col-md-4 mb-5">
+        <a href="#" id="show-coffee" data-toggle="modal" data-target="#productModal" class="product">
+          <div class="img-wrap">
+            <img src="{{ url_for('static', filename='home/coffee.jpg') }}" alt="Coffee & Hot Drinks" class="img-fluid mb-3">
+          </div>
+        </a>
+        <div class="p-3 text-center Food-info">
+          <h2>Coffee & Hot Drinks</h2>
+          <span class="text">Savor the craft of premium coffee at our café, where every cup is a work of art. </span>
+        </div>
+      </div>
+    
+      <!-- Cold Drinks Section -->
+      <div class="col-md-4 mb-5">
+        <a href="#" id="showcolddrink" data-toggle="modal" data-target="#productModal" class="product">
+          <div class="img-wrap">
+            <img src="{{ url_for('static', filename='home/drinks.jpg') }}" alt="Cold Drinks" class="img-fluid mb-3">
+          </div>
+        </a>
+        <div class="p-3 text-center Food-info">
+          <h2>Cold Drinks</h2>
+          <span class="text">Refresh your palate with our exhilarating array of Cold Drinks! </span>
+        </div>
+      </div>
+      
+      <!-- Milkshake Section -->
+      <div class="col-md-4 mb-5">
+        <a href="#" id="milkshake" data-toggle="modal" data-target="#productModal" class="product">
+          <div class="img-wrap">
+            <img src="{{ url_for('static', filename='home/milkshake.jpg') }}" alt="Milkshake" class="img-fluid mb-3">
+          </div>
+        </a>
+        <div class="p-3 text-center Food-info">
+          <h2>Milkshake</h2>
+          <span class="text">From the classic Vanilla to the indulgent Rich Chocolate, our milkshakes are crafted to perfection, offering a sublime treat for your taste buds.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Quick Taste Section -->
+      <div class="col-md-4 mb-5">
+        <a href="#" id="quicktaste" data-toggle="modal" data-target="#productModal" class="product">
+          <div class="img-wrap">
+            <img src="{{ url_for('static', filename='home/fastfood.jpg') }}" alt="Quick Taste" class="img-fluid mb-3">
+          </div>
+        </a>
+        <div class="p-3 text-center Food-info">
+          <h2>Quick Taste</h2>
+          <span class="text">Dive into our delectable Fast Food delights—from juicy American Hotdogs to Smokey BBQ Pulled Pork.</span>
+        </div>
+      </div>
+      
+      <!-- Chill Delights Section -->
+      <div class="col-md-4 mb-5">
+        <a href="#" id="chill" data-toggle="modal" data-target="#productModal" class="product">
+          <div class="img-wrap">
+            <img src="{{ url_for('static', filename='home/icecream.jpg') }}" alt="Chill Delights" class="img-fluid mb-3">
+          </div>
+        </a>
+        <div class="p-3 text-center Food-info">
+          <h2>Chill Delights</h2>
+          <span class="text">Cool off with our vibrant ice blocks and handcrafted ice creams, offering a refreshing zing in a spectrum of bold flavors.</span>
+        </div>
+      </div>
+      
+      <!-- Essentials Section -->
+      <div class="col-md-4 mb-5">
+        <a href="#" id="essentials" data-toggle="modal" data-target="#productModal" class="product">
+          <div class="img-wrap">
+            <img src="{{ url_for('static', filename='home/essentials.jpg') }}" alt="Essentials" class="img-fluid mb-3">
+          </div>
+        </a>
+        <div class="p-3 text-center Food-info">
+          <h2>Essentials</h2>
+          <span class="text">Discover the rugged beauty of New Zealand's West Coast with essential items and unique souvenirs tailored for your adventure.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Product End -->
+
+<!-- Bottom-image -->
+<div class="bottom-image">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-12 col-md-6 text-center mb-4 mb-md-0 text-md-left">
+        <h2 class="text-white font-weight-bold">A Best Place To Stay. Reserve Now!</h2>
+      </div>
+      <div class="col-12 col-md-6 text-center text-md-right">
+        <a href="{{ url_for('customer.booking_room') }}" class="btn btn-theme-2" style="margin-right: 30px;">Reserve Now</a>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Bottom-image End -->
+
+<!-- The Modal -->
+<div class="modal fade" id="productModal">
+  <div class="modal-dialog modal-dialog-centered custom-modal">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h4 class="modal-title" id="modalTitle">Modal Title</h4> 
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <!-- Modal Body -->
+      <div class="modal-body" id="productModalBody">
+        <div class="row"> 
+        
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const modal = new bootstrap.Modal(document.getElementById('productModal'));
+
+    document.getElementById('show-coffee').addEventListener('click', function (event) {
+      event.preventDefault();
+      updateModalAndShow('/get-coffee-and-hot-drinks', "Coffee & Hot Drinks");
+    });
+
+    document.getElementById('showcolddrink').addEventListener('click', function (event) {
+      event.preventDefault();
+      updateModalAndShow('/get_cold_drinks', "Cold Drinks");
+    });
+
+    document.getElementById('milkshake').addEventListener('click', function (event) {
+      event.preventDefault();
+      updateModalAndShow('/get_milkshake', "Milkshake");
+    });
+
+    document.getElementById('quicktaste').addEventListener('click', function (event) {
+      event.preventDefault();
+      updateModalAndShow('/quicktaste', "Quick Taste");
+    });
+
+    document.getElementById('chill').addEventListener('click', function (event) {
+      event.preventDefault();
+      updateModalAndShow('/chill', "Chill Delights");
+    });
+
+    document.getElementById('essentials').addEventListener('click', function (event) {
+      event.preventDefault();
+      updateModalAndShow('/essentials', "Essentials");
+    });
+
+    function updateModalAndShow(url, title) {
+      fetch(url)
+        .then(response => response.json())
+        .then(products => {
+          const modalTitle = document.getElementById('modalTitle');
+          modalTitle.textContent = title;
+          const container = document.getElementById('productModalBody').querySelector('.row');
+          container.innerHTML = ''; 
+          products.forEach(product => {
+            const card = createProductCard(product);
+            container.appendChild(card);
+          });
+          modal.show();
+        })
+        .catch(error => console.error('Error loading products:', error));
+    }
+
+    function createProductCard(product) {
+      const col = document.createElement('div');
+      col.className = 'col-md-4 mb-4';
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const img = document.createElement('img');
+      img.src = `/static/product/${product.image}`;
+      img.className = 'card-img-center';
+      img.style.width = '70%';  
+      img.style.height = '200px'; 
+      img.style.objectFit = 'cover'; 
+      img.style.display = 'block';  
+      img.style.marginLeft = 'auto';  
+      img.style.marginRight = 'auto';  
+
+      const cardBody = document.createElement('div');
+      cardBody.className = 'card-body';
+      const cardTitle = document.createElement('h5');
+      cardTitle.className = 'card-title';
+      cardTitle.textContent = product.name;
+
+      const cardText = document.createElement('p');
+      cardText.className = 'card-text';
+      cardText.textContent = product.description;
+      const price = document.createElement('p');
+      price.className = 'card-text';
+      price.textContent = `Price From: $${product.price}`;
+
+      cardBody.appendChild(cardTitle);
+      cardBody.appendChild(cardText);
+      cardBody.appendChild(price);
+      card.appendChild(img);
+      card.appendChild(cardBody);
+      col.appendChild(card);
+      return col;
+    }
+  });
+</script>
+
+{% endblock %}

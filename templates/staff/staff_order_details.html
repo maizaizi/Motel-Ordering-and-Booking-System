@@ -1,0 +1,22 @@
+
+<p><strong>Special Requests:</strong> {{ order.special_requests }}</p>
+<p><strong>Promotion Code Used:</strong> {{ promo_code_display }}</p>
+<h4>Order Items</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Product Name</th>
+            <th>Quantity</th>
+            <th>Options</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in order_items %}
+        <tr>
+            <td>{{ item.product_name | title }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.options | title }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

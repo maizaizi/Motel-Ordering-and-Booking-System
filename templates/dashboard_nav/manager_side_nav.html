@@ -1,0 +1,84 @@
+    <!-- Side bar -->
+    <nav id="sidebarMenu" class="sidebar col-sm-3 col-md-3 col-lg-2 d-sm-block d-none sidebar collapse">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#sidebarMenu"
+            aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle sidebar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Profile section starts here -->
+        <div class="mx-3 mt-5 mb-3 text-center">
+            <!-- Displaying the profile image static folder -->
+            <img src="{{ url_for('static', filename='manager/%s' % manager_info.profile_image) }}" alt="profile_image" class="rounded-circle-2">
+            <!-- Displaying the first and last name with the first letter capitalized -->
+            <h5 class="mt-3 text-black d-none d-sm-block">{{ manager_info.first_name | capitalize }} {{
+                manager_info.last_name | capitalize }}</h5>
+        </div>
+
+        <!-- Navigation links start here -->
+        <div class="list-group list-group-flush mx-3 mt-4">
+            <!-- Link to the order page -->
+            <li class="list-group-item list-group-item-action py-2 ripple">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-cart-check me-2"></i>
+                    <a href="#ordersSubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                        class="dropdown-toggle ms-1 nav-text d-sm-inline">Orders</a>
+                </div>
+                <ul class="collapse list-unstyled" id="ordersSubmenu">
+                    <li><a class="dropdown-item" href="{{ url_for('manager.manage_orders')}}">Manage Orders</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('manager.history_orders')}}">Order History</a></li>
+                </ul>
+            </li>
+
+            <!-- Link to the booking page -->
+            <li class="list-group-item list-group-item-action py-2 ripple">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-book-half me-2"></i>
+                    <a href="#bookSubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                        class="dropdown-toggle ms-1 nav-text d-sm-inline">Manage bookings</a>
+                </div>
+                <ul class="collapse list-unstyled" id="bookSubmenu">
+                    <li><a class="dropdown-item" href="{{ url_for('manager.view_checkin_bookings')}}">Check-in Bookings</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('manager.view_checked_in_bookings') }}">Check-out Bookings</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('manager.view_confirmed_bookings') }}">Cancel Bookings</a></li>
+                </ul>
+            </li>
+
+            <!-- Link to the inventory -->
+            <li class="list-group-item list-group-item-action py-2 ripple">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-eye me-2"></i>
+                    <a href="#inventorySubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                        class="dropdown-toggle ms-1 nav-text d-sm-inline">Inventory</a>
+                </div>
+                <ul class="collapse list-unstyled" id="inventorySubmenu">
+                    <li><a class="dropdown-item" href="{{ url_for('manager.monitor_inventory')}}">Update Inventory Stock</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('manager.manage_products' )}}">Manage Product</a></li>
+                </ul>
+            </li>
+
+            <!-- Link to the rooms | edit descirption | price? | To be add on -->
+            <li class="list-group-item list-group-item-action py-2 ripple">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-book me-2"></i>
+                    <a href="#roomsSubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                        class="dropdown-toggle ms-1 nav-text d-sm-inline">Manage Block Dates</a>
+                </div>
+                <ul class="collapse list-unstyled" id="roomsSubmenu">
+                    <!--<li><a class="dropdown-item" href="#">Edit Rooms</a></li> -->
+                    <li><a class="dropdown-item" href="{{ url_for('manager.manage_accommodation' )}}">Manage Booking Calendar</a></li>
+                </ul>
+            </li>
+            
+            <!-- Link to the manage account -->
+            <a href="{{ url_for('manager.manage_accounts')}}" class="list-group-item list-group-item-action py-2 ripple d-flex align-items-center">
+                <i class="bi bi-people me-2"></i>
+                <span class="ms-1 nav-text d-sm-inline">Manage Accounts</span>
+            </a>
+
+            <!-- Link to the chat -->
+            <a href="{{ url_for('manager.list_customers') }}" class="list-group-item list-group-item-action py-2 ripple d-flex align-items-center">
+                <i class="bi bi-chat-dots me-2"></i>
+                <span class="ms-1 nav-text d-sm-inline">Chat with Customers</span>
+            </a>
+            
+        </div>
+    </nav>

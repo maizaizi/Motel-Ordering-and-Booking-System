@@ -1,0 +1,465 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Product/Inventory{% endblock %}
+
+{% block content %}
+<div class="content">
+    {% include 'dashboard_nav/manager_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'dashboard_nav/manager_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <h1 class="mb-4">Manage Product Details</h1>
+                
+                <!-- Category Filter -->
+                <form method="GET" action="{{ url_for('manager.manage_products') }}">
+                    <div class="row">
+                        <div class="col-md-5 mb-3 d-flex align-items-center">
+                            <select name="category_id" class="form-select form-control">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.category_id }}" {% if category_filter and category.category_id == category_filter|int %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-5 mb-3 d-flex align-items-center"> 
+                            <select name="status" class="form-select form-control">
+                                <option value="">All Statuses</option>
+                                <option value="1" {% if status_filter == '1' %}selected{% endif %}>Available</option>
+                                <option value="0" {% if status_filter == '0' %}selected{% endif %}>Unavailable</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3 d-flex align-items-center">
+                            <button type="submit" class="btn btn-custom btn-block form-control">
+                                <i class="fa fa-search"></i>
+                                Filter</button>
+                        </div>
+                    </div>
+                </form>
+            
+                <!-- Add Inventory -->
+                <button type="button" class="btn btn-theme mb-4" data-bs-toggle="modal" data-bs-target="#addInventoryModal">
+                    Add Product
+                </button>
+
+                <!-- Add Option Type Button -->
+                <button type="button" class="btn btn-theme mb-4" data-bs-toggle="modal" data-bs-target="#addOptionTypeModal">
+                    Add Option Type
+                </button>
+
+                <!-- Edit Option Type Button -->
+                <button type="button" class="btn btn-theme mb-4" data-bs-toggle="modal" data-bs-target="#editOptionTypeListModal">
+                    Edit Option Type
+                </button>
+
+                <!-- Add Product Modal -->
+                <div class="modal fade" id="addInventoryModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addInventoryModalLabel">Add Product</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ url_for('manager.add_inventory') }}" enctype="multipart/form-data" onsubmit="return validateImage();">
+                                    <div class="form-group">
+                                        <label for="name">Product Name:</label>
+                                        <input type="text" class="form-control" id="name" name="name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="category_id">Category:</label>
+                                        <select class="form-control" id="category_id" name="category_id" required>
+                                            <option value="">Select a Category</option>
+                                            {% for category in categories %}
+                                                <option value="{{ category.category_id }}" data-category-name="{{ category.name }}">{{ category.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="description">Description:</label>
+                                        <input type="text" class="form-control" id="description" name="description" maxlength="300" required oninput="validateDescription()">
+                                        <div id="descriptionError" style="color: red; display: none;">Description cannot exceed 300 characters.</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="unit_price">Unit Price($):</label>
+                                        <input type="text" class="form-control" id="unit_price" name="unit_price" min="0" required oninput="validateUnitprice()">
+                                        <div id="unitPriceError" style="color: red; display: none;">Unit price cannot be negative.</div>
+                                    </div>
+                                    <div class="form-group" id="quantity-field">
+                                        <label for="quantity">Quantity:</label>
+                                        <input type="text" class="form-control" id="quantity" name="quantity" min="0" required oninput="validateQuantity()">
+                                        <div id="quantityError" style="color: red; display: none;">Quantity cannot be negative.</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="image">Image:</label>
+                                        <input type="file" class="form-control" id="image" name="image" onchange="previewImage(event); validateImage();">
+                                        <img id="preview" src="" alt="Image preview" style="width: 100px; height: 100px;">
+                                        <div id="imageError" style="color: red;"></div>
+                                    </div>
+                                    <input type="hidden" id="option_id" name="option_id">
+                                    <input type="hidden" id="option_type_id" name="option_type_id">
+                                    <button type="submit" class="btn btn-custom">Add Product</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Option Type Modal -->
+                <div class="modal fade" id="addOptionTypeModal" tabindex="-1" role="dialog" aria-labelledby="addOptionTypeModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addOptionTypeModalLabel">Add Option Type</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ url_for('manager.add_option_type') }}">
+                                    <div class="form-group">
+                                        <label for="option_type">Option Type:</label>
+                                        <input type="text" class="form-control" id="option_type" name="option_type" required>
+                                    </div>
+                                    <div id="options-container">
+                                        <div class="form-group option-group">
+                                            <label for="option_name_1">Option Name:</label>
+                                            <input type="text" class="form-control" id="option_name_1" name="option_name[]" required>
+                                            <label for="additional_cost_1">Additional Cost ($):</label>
+                                            <input type="text" class="form-control" id="additional_cost_1" name="additional_cost[]">
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-secondary" id="addOptionButton">Add Another Option</button>
+                                    <button type="submit" class="btn btn-theme">Add Option</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Option Type List Modal -->
+                <div class="modal fade" id="editOptionTypeListModal" tabindex="-1" role="dialog" aria-labelledby="editOptionTypeListModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editOptionTypeListModalLabel">Edit Option Type</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <ul class="list-group" id="optionTypeList">
+                                    <!-- Dynamic content will be loaded here using JavaScript -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Option Modal -->
+                <div class="modal fade" id="editOptionTypeModal" tabindex="-1" role="dialog" aria-labelledby="editOptionTypeModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editOptionTypeModalLabel">Edit Options</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ url_for('manager.edit_option_type') }}">
+                                    <input type="hidden" id="edit_option_type_id" name="option_type">
+                                    <div id="edit-options-container">
+                                        <!-- Dynamic content will be loaded here using JavaScript -->
+                                    </div>
+                                    <button type="button" class="btn btn-secondary" id="addEditOptionButton">Add Another Option</button>
+                                    <button type="submit" class="btn btn-theme">Save Changes</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th style="width: 10%;">Image</th>
+                            <th style="width: 15%;">Product Name</th>
+                            <th style="width: 10%;">Category</th>
+                            <th style="width: 35%;">Description</th>
+                            <th style="width: 10%;">Unit Price</th>
+                            <th style="width: 5%;">Status</th>
+                            <th style="width: 5%;">Edit</th>
+                            <th style="width: 5%;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td>
+                                <img src="{{ url_for('static', filename='product/' + product.image) }}" alt="Product Image"
+                                    class="img-thumbnail" style="width: 80px; height: 100px;">
+                            </td>
+                            <td class="text-start"><strong>{{ product.name | title }}</strong></td>
+                            <td>{{ product.category | title }}</td>
+                            <td class="text-start">{{ product.description | capitalize }}</td>
+                            <td>${{ product.unit_price }}</td>
+                            <td>
+                                {{ 'Active' if product.is_available else 'Inactive' }}
+                            <td>
+                                <a class="btn btn-theme" 
+                                href="{{ url_for('manager.edit_product', product_id=product.product_id) }}">Edit</a>
+                            </td>
+                            <td>
+                                <form action="{{ url_for('manager.toggle_product_status', product_id=product.product_id) }}" method="post">
+                                    {% if product.is_available %}
+                                    <button class="btn btn-danger" type="submit">Deactivate</button>    
+                                    {% else %}
+                                    <button class="btn btn-success" type="submit">Activate</button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="d-flex justify-content-center">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            {% if page > 1 %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="{{ url_for('manager.manage_products', page=page-1, category_id=category_filter, status=status_filter) }}"
+                                    aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li class="page-item disabled"><a class="page-link">Page {{ page }}</a></li>
+                            {% if products|length >= items_per_page %}
+                            <li class="page-item">
+                                <a class="page-link"
+                                    href="{{ url_for('manager.manage_products', page=page+1, category_id=category_filter, status=status_filter) }}"
+                                    aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var addEditOptionButton = document.getElementById('addEditOptionButton');
+    var addOptionButton = document.getElementById('addOptionButton');
+    var editOptionsContainer = document.getElementById('edit-options-container');
+    var optionsContainer = document.getElementById('options-container');
+    var editOptionCount = document.querySelectorAll('#edit-options-container .option-group').length; 
+    var optionCount = document.querySelectorAll('#options-container .option-group').length + 1;
+
+    var removedOptionIds = []; 
+
+    addEditOptionButton.addEventListener('click', function() {
+        editOptionCount++;
+        var newOptionGroup = document.createElement('div');
+        newOptionGroup.classList.add('form-group', 'option-group');
+        newOptionGroup.innerHTML = `
+            <label for="edit_option_name_${editOptionCount}">Option Name:</label>
+            <input type="text" class="form-control" id="edit_option_name_${editOptionCount}" name="edit_option_name[]" required>
+            <label for="edit_additional_cost_${editOptionCount}">Additional Cost ($):</label>
+            <input type="text" class="form-control" id="edit_additional_cost_${editOptionCount}" name="edit_additional_cost[]">
+            <button type="button" class="btn btn-danger remove-option-button">Remove</button>
+        `;
+        editOptionsContainer.appendChild(newOptionGroup);
+
+        // Attach event listener for remove button
+        newOptionGroup.querySelector('.remove-option-button').addEventListener('click', function() {
+            newOptionGroup.remove();
+        });
+    });
+
+    addOptionButton.addEventListener('click', function() {
+        optionCount++;
+        var newOptionGroup = document.createElement('div');
+        newOptionGroup.classList.add('form-group', 'option-group');
+        newOptionGroup.innerHTML = `
+            <label for="option_name_${optionCount}">Option Name:</label>
+            <input type="text" class="form-control" id="option_name_${optionCount}" name="option_name[]" required>
+            <label for="additional_cost_${optionCount}">Additional Cost ($):</label>
+            <input type="text" class="form-control" id="additional_cost_${optionCount}" name="additional_cost[]">
+            <button type="button" class="btn btn-danger remove-option-button">Remove</button>
+        `;
+        optionsContainer.appendChild(newOptionGroup);
+
+        // Attach event listener for remove button
+        newOptionGroup.querySelector('.remove-option-button').addEventListener('click', function() {
+            newOptionGroup.remove();
+        });
+    });
+
+    // Load options for editing
+    $('#editOptionTypeListModal').on('show.bs.modal', function(event) {
+        var modal = $(this);
+        var optionTypeList = document.getElementById('optionTypeList');
+
+        // Fetch the existing option types from the server
+        $.ajax({
+            url: "{{ url_for('manager.get_option_types') }}",
+            method: "GET",
+            success: function(response) {
+                optionTypeList.innerHTML = ''; // Clear existing content
+                response.option_types.forEach(function(option_type) {
+                    var listItem = document.createElement('li');
+                    listItem.classList.add('list-group-item', 'list-group-item-action');
+                    listItem.innerText = option_type; // Ensure this matches the JSON structure
+                    listItem.setAttribute('data-type', option_type); // Ensure this matches the JSON structure
+                    listItem.addEventListener('click', function() {
+                        loadOptionsForEditing(option_type); // Pass the type
+                    });
+                    optionTypeList.appendChild(listItem);
+                });
+            },
+            error: function(error) {
+                console.error("Error fetching option types:", error);
+            }
+        });
+    });
+
+
+    function loadOptionsForEditing(optionType) {
+        $('#editOptionTypeListModal').modal('hide');
+        $('#editOptionTypeModal').modal('show');
+
+        var editOptionsContainer = document.getElementById('edit-options-container');
+
+        // Fetch the options for the selected option type
+        $.ajax({
+            url: "{{ url_for('manager.get_options_for_type') }}",
+            method: "GET",
+            data: { type: optionType },
+            success: function(response) {
+                editOptionsContainer.innerHTML = ''; // Clear existing content
+                document.getElementById('edit_option_type_id').value = optionType; // Set the hidden field
+
+                var seen = new Set(); // Set to track seen options
+
+                response.options.forEach(function(option, index) {
+                    if (!seen.has(option.option_name)) {
+                        var optionGroup = document.createElement('div');
+                        optionGroup.classList.add('form-group', 'option-group');
+                        optionGroup.innerHTML = `
+                            <label for="edit_option_name_${index}">Option Name:</label>
+                            <input type="text" class="form-control" id="edit_option_name_${index}" name="edit_option_name[]" value="${option.option_name}" required>
+                            <label for="edit_additional_cost_${index}">Additional Cost ($):</label>
+                            <input type="text" class="form-control" id="edit_additional_cost_${index}" name="edit_additional_cost[]" value="${option.additional_cost}">
+                            <input type="hidden" name="option_id[]" value="${option.option_id}">
+                            <button type="button" class="btn btn-danger remove-option-button" data-option-id="${option.option_id}">Remove</button>
+                        `;
+                        editOptionsContainer.appendChild(optionGroup);
+                        seen.add(option.option_name); // Add option name to the set
+
+                        // Attach event listener for remove button
+                        optionGroup.querySelector('.remove-option-button').addEventListener('click', function() {
+                            removedOptionIds.push(option.option_id);  // Add to removedOptionIds
+                            optionGroup.remove();
+                        });
+                    }
+                });
+            },
+            error: function(error) {
+                console.error("Error fetching options:", error);
+            }
+        });
+    }
+
+    var form = document.querySelector('form[action="{{ url_for('manager.edit_option_type') }}"]');
+    form.addEventListener('submit', function() {
+        removedOptionIds.forEach(id => {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'remove_option_id[]';
+            input.value = id;
+            form.appendChild(input);
+        });
+    });
+});
+
+    function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            var output = document.getElementById('preview');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function validateImage() {
+        var fileInput = document.getElementById('image');
+        var errorDiv = document.getElementById('imageError');
+
+        if (!fileInput.files.length || fileInput.files[0].name == '') {
+            errorDiv.textContent = 'Image file is required';
+            return false;
+        } else {
+            errorDiv.textContent = '';
+            return true;
+        }
+    }
+
+    function validateQuantity() {
+        var quantity = document.getElementById('quantity');
+        var quantityError = document.getElementById('quantityError');
+        if (quantity.value < 0) {
+            quantityError.style.display = 'block';
+        } else {
+            quantityError.style.display = 'none';
+        }
+    }
+
+    function validateDescription() {
+        var description = document.getElementById('description');
+        var descriptionError = document.getElementById('descriptionError');
+        if (description.value.length > 300) {
+            descriptionError.style.display = 'block';
+        } else {
+            descriptionError.style.display = 'none';
+        }
+    }
+
+    function validateUnitprice() {
+        var unitPrice = document.getElementById('unit_price');
+        var unitPriceError = document.getElementById('unitPriceError');
+        if (unitPrice.value < 0) {
+            unitPriceError.style.display = 'block';
+        } else {
+            unitPriceError.style.display = 'none';
+        }
+    }
+
+    function toggleQuantityField() {
+        var selectedCategory = document.getElementById('category_id').selectedOptions[0].getAttribute('data-category-name');
+        var quantityField = document.getElementById('quantity-field');
+        var quantityInput = document.getElementById('quantity');
+        var hiddenCategories = ['Coffee', 'Hot Drinks', 'Milkshakes', 'Iced Teas'];
+
+        if (hiddenCategories.includes(selectedCategory)) {
+            quantityField.style.display = 'none';
+            quantityInput.removeAttribute('required'); // Remove required attribute
+            quantityInput.setAttribute('disabled', 'disabled'); // Disable intup field
+        } else {
+            quantityField.style.display = 'block';
+            quantityInput.setAttribute('required', 'required'); // Add required attribute
+            quantityInput.removeAttribute('disabled'); // Enable input field
+        }
+    }
+
+document.addEventListener('DOMContentLoaded', function() {
+    toggleQuantityField(); // Initialize the quantity field visibility based on the default selected category
+    document.getElementById('category_id').addEventListener('change', toggleQuantityField); // Add event listener for category change
+});
+
+</script>
+   
+{% endblock %}

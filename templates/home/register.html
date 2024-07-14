@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Register{% endblock %}
+
+{% block navbar %}
+{% include 'home/home_nav.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 500px; margin: 100px auto;">
+    <h3 class="text-center fw-bold">Register Form</h3>
+    <form action="{{ url_for('auth.register') }}" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+        <div class="mb-3">
+            <label for="email" class="form-label"><strong>Email:</strong></label>
+            <input type="email" class="form-control" id="email" name="email" required placeholder="Email" pattern="[^@]+@[^@]+\.[^@]+">
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label"><strong>Password:</strong></label>
+            <input type="password" class="form-control" id="password" name="password" required placeholder="Password" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$">
+            <div class="form-text">*Password must be at least 8 characters long and mix with lowercase \
+                letter, uppercase letter and number</div>
+        </div>
+        <div class="mb-3">
+            <label for="first_name" class="form-label"><strong>First Name:</strong></label>
+            <input type="text" class="form-control" id="first_name" name="first_name" required placeholder="First Name">
+        </div>
+        <div class="mb-3">
+            <label for="last_name" class="form-label"><strong>Last Name:</strong></label>
+            <input type="text" class="form-control" id="last_name" name="last_name" required placeholder="Last Name">
+        </div>
+        <div class="mb-3">
+            <label for="phone" class="form-label"><strong>Phone:</strong></label>
+            <input type="tel" class="form-control" id="phone" name="phone" required
+                   placeholder="Phone" pattern="^\d{8,11}$" 
+                   title="Phone number must be between 8 and 11 digits.">
+            <div class="form-text">
+                *Phone number must be 8 to 11 digits long and should not contain "-" or space.
+            </div>
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-theme">Register</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

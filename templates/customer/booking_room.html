@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+
+{% block title %}Room Booking{% endblock %}
+
+{% block navbar %}
+{% include 'home/home_nav.html' %}
+{% endblock %}
+
+{% block content %}
+<style>
+    .dropdown-guest {
+        position: relative;
+        display: inline-block;
+    }
+
+    .dropdown-guest-content {
+        display: none;
+        position: absolute;
+        background-color: #f9f9f9;
+        min-width: 160px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        padding: 12px 16px;
+        z-index: 1;
+    }
+
+    .dropdown-guest:hover .dropdown-guest-content {
+        display: block;
+    }
+
+    .dropdown-content {
+        padding: 20px;
+    }
+
+    .form-container {
+        max-width: 1500px; 
+        margin-top: -100px !important;
+        margin-bottom: 150px !important;
+        padding: 30px; 
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+</style>
+
+<!-- Fixed Header Image -->
+<div class="about-image d-flex align-items-center justify-content-center">
+    <div class="text-center text-white" style="margin-top: 100px;">
+      <h1>Book Your Room</h1>
+      <h3>Bruce Bay Beans & Bunks offers the perfect spot to kick back and relax.</h3>
+  </div>
+</div>
+
+<div class="container mt-5 mb-5 form-container">
+    <form id="searchForm" class="mb-3" method="post" action="{{ url_for('customer.search') }}">
+        <div class="row g-3 align-items-center justify-content-start">
+            <div class="col-md-4">
+                <label for="daterange" class="form-label">Date Range:</label>
+                <input type="text" id="daterange" name="daterange" class="form-control" required>
+            </div>
+            <div class="col-md-3">
+                <label for="number_of_guests" class="form-label">Number of Guests:</label>
+                <button type="button" id="guestsDropdown" class="btn btn-custom form-control dropdown-toggle">1
+                    Guest</button>
+                <input type="hidden" id="number_of_guests" name="number_of_guests" value="1">
+                <input type="hidden" id="adults" name="adults" value="1">
+                <input type="hidden" id="children" name="children" value="0">
+                <input type="hidden" id="children_0_2" name="children_0_2" value="0">
+                <input type="hidden" id="children_2_17" name="children_2_17" value="0">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-theme mt-4">
+                    <i class="fa fa-search"></i>
+                    Search Availability</button>
+            </div>
+        </div>
+    </form>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}" role="alert">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div id="resultsTable">
+        <!-- Results will be dynamically loaded here -->
+    </div>
+</div>
+
+<div class="modal fade" id="guestsModal" tabindex="-1" role="dialog" aria-labelledby="guestsModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="guestsModalLabel">Select Guests</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="dropdown-content">
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="group_adults">Adults</label>
+                            <input type="range" class="form-range" id="group_adults" min="1" max="4" step="1"
+                                value="1">
+                            <span id="adultsCount">1</span>
+                        </div>
+                        <div class="col-12">
+                            <label for="group_children">Children</label>
+                            <input type="range" class="form-range" id="group_children" min="0" max="3" step="1"
+                                value="0">
+                            <span id="childrenCount">0</span>
+                        </div>
+                        <div id="childrenContainer" class="col-12">
+                            <!-- Dynamic child age dropdowns will be appended here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveGuests">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script>
+    $(function () {
+        var today = moment();
+        var tomorrow = moment().add(1, 'day');
+        $('input[name="daterange"]').daterangepicker({
+            opens: 'left',
+            startDate: today,
+            endDate: tomorrow,
+            minDate: today,
+            maxDate: moment().add(1, 'year'),
+            locale: {
+                format: 'DD/MM/YYYY'
+            },
+            isInvalidDate: function (date) {
+                var blockedDates = ['2023-12-25', '2024-01-01'];
+                return blockedDates.includes(date.format('YYYY-MM-DD'));
+            }
+        });
+
+        $('input[name="daterange"]').on('apply.daterangepicker', function (ev, picker) {
+            if (!picker.startDate || !picker.endDate) {
+                alert("Please select a valid date range.");
+                return false;
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        $('#guestsDropdown').on('click', function () {
+            $('#guestsModal').modal('show');
+        });
+
+        $('#saveGuests').on('click', function () {
+            var adults = $('#group_adults').val();
+            var children = $('#group_children').val();
+            var children0_2 = 0;
+            var children2_17 = 0;
+
+            $('.child-age-select').each(function () {
+                var ageGroup = $(this).val();
+                if (ageGroup === '0-2') {
+                    children0_2++;
+                } else if (ageGroup === '2-17') {
+                    children2_17++;
+                }
+            });
+
+            if (adults < 1) {
+                alert('There must be at least one adult.');
+                return;
+            }
+
+            var totalGuests = parseInt(adults) + parseInt(children2_17);
+            $('#guestsDropdown').text(totalGuests + ' Guests');
+            $('#number_of_guests').val(totalGuests);
+            $('#adults').val(adults);
+            $('#children').val(children);
+            $('#children_0_2').val(children0_2);
+            $('#children_2_17').val(children2_17);
+            $('#guestsModal').modal('hide');
+        });
+
+        $('#group_children').on('input', function () {
+            var childrenCount = $(this).val();
+            var childrenContainer = $('#childrenContainer');
+            childrenContainer.empty();
+            for (var i = 0; i < childrenCount; i++) {
+                childrenContainer.append(`
+                        <div class="col-12 mt-2">
+                            <label for="child_${i}_age">Child ${i + 1} Age</label>
+                            <select id="child_${i}_age" class="form-control child-age-select">
+                                <option disabled selected value="">Select child age</option>
+                                <option value="0-2">under 2 years old (doesn't include 2)</option>
+                                <option value="2-17">2-17 years old</option>
+                            </select>
+                        </div>
+                    `);
+            }
+        });
+
+        $('#searchForm').on('submit', function (e) {
+            var daterange = $('#daterange').val();
+            if (!daterange) {
+                alert("Please select a valid date range.");
+                return false;
+            }
+            e.preventDefault();
+            var data = $(this).serialize();
+            $.post('/customer/search', data, function (response) {
+                var rows = '';
+                if (response.no_rooms) {
+                    $('.alert-warning').remove();
+                    rows = '<div class="col-12"><div class="alert alert-warning">No rooms available for the selected dates. Please choose different dates.</div></div>';
+                } else {
+                    response.rooms.forEach(function (room) {
+                        var imagePath = '';
+                        switch (room.type.toLowerCase()) {
+                            case 'dorm':
+                                imagePath = "{{ url_for('static', filename='home/dorm.jpg') }}";
+                                break;
+                            case 'twin':
+                                imagePath = "{{ url_for('static', filename='home/twin.jpg') }}";
+                                break;
+                            case 'queen':
+                                imagePath = "{{ url_for('static', filename='home/queen.jpg') }}";
+                                break;
+                        }
+                        var actionHtml = '';
+                        if (room.availability === 'Room Closed due to maintenance') {
+                            actionHtml = '<button class="btn btn-warning" disabled>Room Temporarily Closed</button>';
+                        } else if (room.availability === 'Fully Booked') {
+                            actionHtml = '<button class="btn btn-secondary" disabled>Fully Booked</button>';
+                        } else if (room.availability === 'Guest number exceeds capacity') {
+                            actionHtml = '<button class="btn btn-danger" disabled>Unavailable</button>';
+                        } else {
+                            actionHtml = `<button class="btn btn-success reserveBtn" data-room-id="${room.accommodation_id}" data-start-date="${$('#daterange').data('daterangepicker').startDate.format('DD/MM/YYYY')}" data-end-date="${$('#daterange').data('daterangepicker').endDate.format('DD/MM/YYYY')}" data-guests="${$('#number_of_guests').val()}">Reserve</button>`;
+                        }
+
+                        var personIcons = '';
+                        for (var i = 0; i < room.capacity; i++) {
+                            personIcons += '<img src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/icons/person.svg" alt="Person Icon" style="width: 20px; height: 20px;">';
+                        }
+
+                        rows += `
+                                <div class="col-4">
+                                    <div class="card mb-4 shadow-sm">
+                                        <img class="card-img-top" src="${imagePath}" alt="${room.type}">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${room.type}</h5>
+                                            <p class="card-text">${room.availability}</p>
+                                            <p class="card-text">Price: $${room.price_per_night}</p>
+                                            <p class="card-text">Max Guests: ${personIcons}</p>
+                                            ${actionHtml}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                    });
+                }
+                if (rows === '') {
+                    rows = '<div class="col-12"><div class="alert alert-warning">No rooms available for the selected dates. Please choose different dates.</div></div>';
+                }
+                $('#resultsTable').html(`<div class="row">${rows}</div>`);
+            });
+        });
+
+        $(document).on('click', '.reserveBtn', function () {
+            var roomId = $(this).data('room-id');
+            var startDate = $(this).data('start-date');
+            var endDate = $(this).data('end-date');
+            var guests = $(this).data('guests');
+            window.location.href = `/customer/preview_booking?room_id=${roomId}&start_date=${startDate}&end_date=${endDate}&adults=${$('#adults').val()}&children_0_2=${$('#children_0_2').val()}&children_2_17=${$('#children_2_17').val()}`;
+        });
+    });
+</script>
+<script>
+    $('#group_adults').on('input', function () {
+        $('#adultsCount').text($(this).val());
+        $('#adults').val($(this).val());  // Update adult count
+    });
+
+    $('#group_children').on('input', function () {
+        $('#childrenCount').text($(this).val());
+        var childrenCount = $(this).val();
+        var childrenContainer = $('#childrenContainer');
+        childrenContainer.empty();
+        for (var i = 0; i < childrenCount; i++) {
+            childrenContainer.append(`
+                    <div class="col-12 mt-2">
+                        <label for="child_${i}_age">Child ${i + 1} Age</label>
+                        <select id="child_${i}_age" class="form-control child-age-select">
+                            <option disabled selected value="">Select child age</option>
+                            <option value="0-2">under 2 years old (doesn't include 2)</option>
+                            <option value="2-17">2-17 years old</option>
+                        </select>
+                    </div>
+                `);
+        }
+    });
+</script>
+{% endblock %}

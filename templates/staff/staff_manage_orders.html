@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Orders{% endblock %}
+
+{% block content %}
+<div class="content">
+    <!-- insert staff_top_nav.html -->
+    {% include 'dashboard_nav/staff_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- insert staff_side_nav.html -->
+            {% include 'dashboard_nav/staff_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <h1 class="mb-4">Manage Orders</h1> 
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="custom-title">Manage Orders</h2>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('staff.manage_orders') }}" method="get" class="mb-3">
+                            <div class="row">
+                                <div class="col-md-3 mb-3 d-flex align-items-center">
+                                    <select name="status" class="form-select form-control" onchange="this.form.submit()">
+                                        <option value="active" {% if filter_status == 'active' %}selected{% endif %}>Active Orders</option>
+                                        <option value="ordered" {% if filter_status == 'ordered' %}selected{% endif %}>Ordered</option>
+                                        <option value="preparing" {% if filter_status == 'preparing' %}selected{% endif %}>Preparing</option>
+                                        <option value="ready for collection" {% if filter_status == 'ready for collection' %}selected{% endif %}>Ready for Collection</option>
+                                        <option value="collected" {% if filter_status == 'collected' %}selected{% endif %}>Collected</option>
+                                        <option value="cancelled" {% if filter_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mb-3 d-flex align-items-center">
+                                    <input type="date" id="pickup_date" name="pickup_date" class="form-control" placeholder="Pickup Date" value="{{ pickup_date }}">
+                                </div>
+                                <div class="col-md-4 mb-3 d-flex align-items-center">
+                                    <input type="text" name="search_email" class="form-control" placeholder="Search by customer email" value="{{ search_email }}">
+                                </div>
+                                <div class="col-md-2 mb-3 d-flex align-items-center">
+                                    <button type="submit" class="btn btn-custom btn-block form-control">
+                                        <i class="fa fa-search"></i>
+                                        Search
+                                    </button>
+                                </div>
+                            </div>                            
+                            <div class="float-right">
+                                <a href="{{ url_for('staff.manage_orders', sort_by='order_id', sort_order=next_sort_order) }}" class="btn btn-theme">Sort by Order ID</a>
+                                <a href="{{ url_for('staff.manage_orders', sort_by='scheduled_pickup_time', sort_order=next_sort_order) }}" class="btn btn-theme">Sort by Pickup Time</a>
+                            </div>
+                        </form>
+                        
+                        {% if orders %}
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Customer</th>
+                                    <th>Email</th>
+                                    <th>Total Price</th>
+                                    <th>Status</th>
+                                    <th>Scheduled Pickup Time</th>
+                                    <th>View Details</th>                                    
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in orders %}
+                                <tr>
+                                    <td>{{ order.order_id }}</td>
+                                    <td>{{ order.first_name | capitalize }} {{ order.last_name | capitalize }}</td>
+                                    <td>{{ order.email }}</td>
+                                    <td>${{ order.total_price }}</td>
+                                    <td>
+                                        <div class="progress" style="height: 30px;">
+                                            <div class="progress-bar 
+                                                {% if order.status == 'ordered' %}
+                                                    bg-info
+                                                {% elif order.status == 'preparing' %}
+                                                    bg-warning
+                                                {% elif order.status == 'ready for collection' %}
+                                                    bg-success
+                                                {% elif order.status == 'cancelled' %}
+                                                    bg-danger
+                                                {% else %}
+                                                    bg-secondary
+                                                {% endif %}"
+                                                role="progressbar"
+                                                style="width: 
+                                                {% if order.status == 'ordered' %}
+                                                    25%
+                                                {% elif order.status == 'preparing' %}
+                                                    50%
+                                                {% elif order.status == 'ready for collection' %}
+                                                    75%
+                                                {% elif order.status == 'cancelled' %}
+                                                    100%
+                                                {% else %}
+                                                    100%
+                                                {% endif %}; 
+                                                display: flex; 
+                                                align-items: center; 
+                                                justify-content: center; 
+                                                font-size: 0.8rem; 
+                                                white-space: nowrap;"
+                                                aria-valuenow="{% if order.status == 'ordered' %}25{% elif order.status == 'preparing' %}50{% elif order.status == 'ready for collection' %}75{% elif order.status == 'cancelled' %}100{% else %}100{% endif %}" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                    </td>
+                                    
+                                    
+                                    <td>{{ order.scheduled_pickup_time | format_time }}</td>
+                                    <td><button class="btn btn-custom btn-sm" onclick="showOrderDetails({{ order.order_id }})">View Details</button></td>
+                                    
+                                    <td>
+                                        <form action="{{ url_for('staff.manage_orders') }}" method="post" style="display: inline;">
+                                            <input type="hidden" name="order_id" value="{{ order.order_id }}">
+                                            <select name="new_status" class="form-select" onchange="this.form.submit()">
+                                                <option value="ordered" {% if order.status == 'ordered' %}selected{% endif %}>Ordered</option>
+                                                <option value="preparing" {% if order.status == 'preparing' %}selected{% endif %}>Preparing</option>
+                                                <option value="ready for collection" {% if order.status == 'ready for collection' %}selected{% endif %}>Ready for Collection</option>
+                                                <option value="collected" {% if order.status == 'collected' %}selected{% endif %}>Collected</option>
+                                                <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                                            </select>
+                                            
+                                        </form>
+                                        
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <p>No orders found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Order details will be loaded here via JavaScript -->
+                <div id="orderDetailsContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showOrderDetails(orderId) {
+    fetch(`/staff/order_details/${orderId}`)
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('orderDetailsContent').innerHTML = data;
+            var orderDetailsModal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+            orderDetailsModal.show();
+        })
+        .catch(error => console.error('Error fetching order details:', error));
+}
+</script>
+
+{% endblock %}

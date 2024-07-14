@@ -1,0 +1,56 @@
+    <!-- Side bar -->
+    <nav id="sidebarMenu" class="sidebar col-sm-3 col-md-3 col-lg-2 d-sm-block d-none sidebar collapse">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle sidebar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Profile section starts here -->
+        <div class="mx-3 mt-5 mb-3 text-center">
+            <!-- Displaying the profile image static folder -->
+            <img src="{{ url_for('static', filename='staff/%s' % staff_info.profile_image) }}" alt="profile_image" 
+            class="rounded-circle-2">
+            <!-- Displaying the first and last name with the first letter capitalized -->
+            <h5 class="mt-3 text-black d-none d-sm-block">{{ staff_info.first_name | capitalize }} {{ staff_info.last_name | capitalize }}</h5>
+        </div>
+
+        <!-- Navigation links start here -->
+        <div class="list-group list-group-flush mx-3 mt-4">
+            <!-- Link to the order page -->
+            <li class="list-group-item list-group-item-action py-2 ripple">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-cart-check me-2"></i>
+                    <a href="#orderSubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                        class="dropdown-toggle ms-1 nav-text d-sm-inline">Orders</a>
+                </div>
+                <ul class="collapse list-unstyled" id="orderSubmenu">
+                    <li><a class="dropdown-item" href="{{ url_for('staff.manage_orders')}}">Manage Orders</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('staff.view_history_orders')}}">Order History</a></li>
+                </ul>
+            </li>
+
+            <!-- Link to the booking page -->
+            <li class="list-group-item list-group-item-action py-2 ripple">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-book-half me-2"></i>
+                    <a href="#bookSubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                        class="dropdown-toggle ms-1 nav-text d-sm-inline">Manage bookings</a>
+                </div>
+                <ul class="collapse list-unstyled" id="bookSubmenu">
+                    <li><a class="dropdown-item" href="{{ url_for('staff.view_checkin_bookings')}}">Check-in Bookings</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('staff.view_checked_in_bookings') }}">Check-out Bookings</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('staff.view_confirmed_bookings') }}">Cancel Bookings</a></li>
+                </ul>
+            </li>
+
+            <!-- Link to the inventory -->
+            <a href="{{ url_for('staff.monitor_inventory')}}" class="list-group-item list-group-item-action py-2 ripple d-flex align-items-center">
+                <i class="bi bi-eye me-2"></i>
+                <span class="ms-1 nav-text d-sm-inline">Update Inventory Stock</span>
+            </a>
+
+            <!-- Link to the chat -->
+            <a href="{{ url_for('staff.list_customers') }}" class="list-group-item list-group-item-action py-2 ripple d-flex align-items-center">
+                <i class="bi bi-chat-dots me-2"></i>
+                <span class="ms-1 nav-text d-sm-inline">Chat with Customers</span>
+            </a>
+        </div>
+    </nav>

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Manager Dashboard{% endblock %}
+
+{% block content %}
+<div class="content">
+    {% include 'dashboard_nav/manager_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'dashboard_nav/manager_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h1 class="custom-title">Product Details</h1>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card-body">
+                                <form method="post" enctype="multipart/form-data" action="{{ url_for('manager.upload_product_image_new', product_id=product.product_id) }}">
+                                    <img class="img-profile mb-2" src="{{ url_for('static', filename='product/' + (product.image)) }}"
+                                        class="img-thumbnail mb-3" alt="Product Image" style="width: 80%; height: auto;">
+                                    <input type="file" class="form-control" id="image" name="image">
+                                    <button type="submit" class="btn btn-theme mt-4">Update Picture</button>
+                                </form>                                                                                                                             
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <form action="{{ url_for('manager.edit_product', product_id=product.product_id) }}" method="POST" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label for="name" class="form-label">Product Name</label>
+                                        <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="category_id" class="form-label">Category Name</label>
+                                        <select class="form-control" id="category_id" name="category_id" required>
+                                            {% for category in categories %}
+                                                <option value="{{ category.category_id }}" {% if category.category_id == product.category_id %} selected {% endif %}>
+                                                    {{ category.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="option_types" class="form-label">Option Types</label>
+                                        <div id="option-types-container">
+                                            {% for option_type in product.option_types %}
+                                            <div class="option-type-group mb-2">
+                                                <select class="form-control option-type-select" name="option_types[]" required>
+                                                    {% for option in option_types %}
+                                                        <option value="{{ option.option_type }}" {% if option.option_type == option_type %} selected {% endif %}>
+                                                            {{ option.option_type }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                                <button type="button" class="btn btn-danger btn-sm remove-option-type-button mt-2">Remove</button>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                        <button type="button" class="btn btn-secondary mt-2" id="add-option-type-button">Add Another Option Type</button>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="description" class="form-label">Description</label>
+                                        <input type="text" class="form-control" id="description" name="description" value="{{ product.description }}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="unit_price" class="form-label">Unit Price($)</label>
+                                        <input type="text" class="form-control" id="unit_price" name="unit_price" value="{{ product.unit_price }}" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-theme">Update Product</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var optionTypesContainer = document.getElementById('option-types-container');
+        var addOptionTypeButton = document.getElementById('add-option-type-button');
+
+        addOptionTypeButton.addEventListener('click', function() {
+            var newOptionTypeGroup = document.createElement('div');
+            newOptionTypeGroup.classList.add('option-type-group', 'mb-2');
+            newOptionTypeGroup.innerHTML = `
+                <select class="form-control option-type-select" name="option_types[]" required>
+                    {% for option in option_types %}
+                        <option value="{{ option.option_type }}">{{ option.option_type }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="btn btn-danger btn-sm remove-option-type-button mt-2">Remove</button>
+            `;
+            optionTypesContainer.appendChild(newOptionTypeGroup);
+
+            var removeButtons = document.querySelectorAll('.remove-option-type-button');
+            removeButtons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    button.parentElement.remove();
+                });
+            });
+        });
+
+        var removeButtons = document.querySelectorAll('.remove-option-type-button');
+        removeButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                button.parentElement.remove();
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block content %}
+<div class="content">
+    <!-- insert customer_top_nav.html -->
+    {% include 'dashboard_nav/customer_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- insert customer_side_nav.html -->
+            {% include 'dashboard_nav/customer_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <div class="card mb-5 text-white card-img">
+                    <img src="{{ url_for('static', filename='images/c4.jpg') }}" class="card-img" alt="img">
+                    <div class="card-img-overlay d-flex flex-column justify-content-center">
+                        <div class="bg-dark bg-opacity-50 p-3 rounded">
+                            <h1 class="text-white text-shadow">Welcome {{ customer_info.first_name | capitalize }} {{ customer_info.last_name | capitalize }}!</h1>
+                            <p class="lead text-white text-shadow">Welcome back to our Bruce Bay Beans & Bunks!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12 d-flex justify-content-end">
+                        <a href="{{ url_for('customer.booking_room') }}" class="btn btn-theme btn-lg me-2">
+                            Book Now
+                        </a>
+                        <a href="{{ url_for('customer.product') }}" class="btn btn-theme btn-lg me-2">
+                            Order Now
+                        </a>
+                        <a href="{{ url_for('customer.customer_chat', staff_id=staff_id) }}" class="btn btn-theme btn-lg me-2">
+                            Chat with Staff
+                        </a>
+                    </div>
+                </div>
+                <div class="row mt-5">
+                    <h1>Explore Nearby Attractions</h1>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <img src="{{ url_for('static', filename='images/c1.jpg') }}" class="da-card-img-top" alt="Guide 1">
+                            <div class="card-body">
+                                <h5 class="card-title">Bruce Bay</h5>
+                                <a href="https://westcoast.co.nz/visit/see-do/" class="btn btn-theme">View</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <img src="{{ url_for('static', filename='images/c2.png') }}" class="da-card-img-top" alt="Guide 2">
+                            <div class="card-body">
+                                <h5 class="card-title">Things You Can Do</h5>
+                                <a href="https://westcoast.co.nz/visit/see-do/outdoors-and-adventure/" class="btn btn-theme">View</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <img src="{{ url_for('static', filename='images/c3.jpg') }}" class="da-card-img-top" alt="Guide 3">
+                            <div class="card-body">
+                                <h5 class="card-title">Our Service</h5>
+                                <a href="{{ url_for('guest.about_us') }}#our_services" class="btn btn-theme">View</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

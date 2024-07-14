@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}manager Dashboard{% endblock %}
+
+{% block content %}
+<div class="content">
+    <!-- insert manager_top_nav.html -->
+    {% include 'dashboard_nav/manager_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- insert manager_side_nav.html -->
+            {% include 'dashboard_nav/manager_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <body>
+                    <div class="container">
+                        <h1>Update Booking</h1>
+                        <form method="POST" action="{{ url_for('manager.update_booking', booking_id=booking.booking_id) }}" class="booking-form">
+                            <div class="form-group">
+                                <label for="first_name">First Name</label>
+                                <input type="text" class="form-control" name="first_name" value="{{ booking.first_name }}" 
+                                pattern="[A-Za-z]+" title="Name must be a letter" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="last_name">Last Name</label>
+                                <input type="text" class="form-control" name="last_name" value="{{ booking.last_name }}" 
+                                pattern="[A-Za-z]+" title="Name must be a letter" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone_number">Phone Number</label>
+                                <input type="text" class="form-control" name="phone_number" value="{{ booking.phone_number }}" 
+                                pattern="\d{8,11}" title="Phone number must be between 8 and 11 digits" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="date_of_birth">Date of Birth</label>
+                                <input type="date" class="form-control" name="date_of_birth" value="{{ booking.date_of_birth }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="id_num">ID Number</label>
+                                <input type="text" class="form-control" name="id_num" value="{{ booking.id_num }}"
+                                pattern="[A-Za-z0-9]+" maxlength="10" title="Please enter a valid driver's license or passport">
+                            </div>
+                            <div class="form-group">
+                                <label for="start_date">Check-in Date （cannot set to be earlier than the initial booking date）</label>
+                                <input type="date" class="form-control" name="start_date" value="{{ booking.start_date }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="end_date">Check-out Date</label>
+                                <input type="date" class="form-control" name="end_date" value="{{ booking.end_date }}" readonly>
+                            </div>
+                            {% if booking.start_date <= today %}
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" name="check_in" id="check_in">
+                                <label class="form-check-label" for="check_in">Check In</label>
+                            </div>
+                            {% endif %}
+                            <button type="submit" class="btn btn-theme">Update Booking</button>
+                        </form>
+                    </div>
+                </body>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

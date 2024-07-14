@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Manager Dashboard{% endblock %}
+
+{% block content %}
+<div class="content">
+    <!-- insert manager_top_nav.html -->
+    {% include 'dashboard_nav/manager_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- insert manager_side_nav.html -->
+            {% include 'dashboard_nav/manager_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h1 class="custom-title">My Profile</h1>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card-body">
+                                <form method="post" enctype="multipart/form-data"
+                                    action="{{ url_for('manager.handle_upload_image_profile') }}">
+                                    <img class="img-profile mb-2" img
+                                        src="{{ url_for('static', filename='manager/' + (account.profile_image if account.profile_image else 'default.png')) }}"
+                                        class="img-thumbnail mb-3" alt="Profile Image"
+                                        style="width: 80%; height: auto;">
+                                    <input type="file" class="form-control" id="profile_image" name="profile_image">
+                                    <button type="submit" class="btn btn-theme mt-4">Update Picture</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body">
+                                <form action="{{ url_for('manager.manager_updateprofile') }}" method="POST"
+                                    enctype="multipart/form-data">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email (cannot be changed)</label>
+                                        <input type="email" class="form-control" id="email" name="email"
+                                            value="{{ account.email }}" readonly>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="first_name" class="form-label">First Name</label>
+                                            <input type="text" class="form-control" id="first_name" name="first_name"
+                                                value="{{ account.first_name }}" pattern="[A-Za-z]+" title="Name must be a letter"
+                                                required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="last_name" class="form-label">Last Name</label>
+                                            <input type="text" class="form-control" id="last_name" name="last_name"
+                                                value="{{ account.last_name }}" pattern="[A-Za-z]+" title="Name must be a letter"
+                                                required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="phone_number" class="form-label">Phone Number</label>
+                                        <input type="text" class="form-control" id="phone_number" name="phone_number"
+                                            value="{{ account.phone_number }}" pattern="\d{8,11}"
+                                            title="Phone number must be between 8 and 11 digits" required>
+                                        <!-- comment added -->
+                                        <p class="text">*Phone number should not contain "-"</p>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                        <input type="date" class="form-control" id="date_of_birth" name="date_of_birth"
+                                            value="{{ account.date_of_birth }}" min="{{ min_date }}"
+                                            max="{{ max_date }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="gender" class="form-label">Gender</label>
+                                        <select class="form-select" id="gender" name="gender" required>
+                                            <option value="male" {% if account.gender=='male' %} selected {% endif %}>
+                                                Male
+                                            </option>
+                                            <option value="female" {% if account.gender=='female' %} selected {% endif
+                                                %}>
+                                                Female
+                                            </option>
+                                            <option value="other" {% if account.gender=='other' %} selected {% endif %}>
+                                                Other
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="position" class="form-label">Position</label>
+                                        <input type="text" class="form-control" id="position" name="position"
+                                            value="{{ account.position }}" maxlength="50" pattern="[A-Za-z ]+" 
+                                            title="Position must be a letter" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="new_password" class="form-label">New Password</label>
+                                        <input type="password" class="form-control" id="new_password"
+                                            name="new_password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}" 
+                                            placeholder="Plese enter your New Password*" 
+                                            title="Password must be at least 8 characters long, including an uppercase letter, a lowercase letter, 
+                                                a number, and a special character">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="confirm_password" class="form-label">Confirm New Password</label>
+                                        <input type="password" class="form-control" id="confirm_password"
+                                            name="confirm_password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}" 
+                                            placeholder="Plese enter your Confirm New Password*" 
+                                            title="Password must be at least 8 characters long, including an uppercase letter, a lowercase letter, 
+                                            a number, and a special character">
+                                    </div>
+                                    <button type="submit" class="btn btn-theme">Update Profile</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block content %}
+<div class="content">
+    <!-- insert customer_top_nav.html -->
+    {% include 'dashboard_nav/customer_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- insert customer_side_nav.html -->
+            {% include 'dashboard_nav/customer_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <h1 class="mb-4">View All Bookings</h1>
+                <table class="table table-striped table-hover">
+                    <thead class="thead-dark">
+                        {% if all_bookings %}
+                        <tr>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Booking ID</th>
+                            <th>Room Type</th>
+                            <th>Price Per Night</th>
+                            <th>Total Paid</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set confirmed_bookings = all_bookings|selectattr("status", "equalto",
+                        "confirmed")|sort(attribute="start_date", reverse=True)|list %}
+                        {% set other_bookings = all_bookings|rejectattr("status", "equalto",
+                        "confirmed")|sort(attribute="start_date", reverse=True)|list %}
+                        {% for booking in confirmed_bookings + other_bookings %}
+                        <tr>
+                            <td>{{ booking['start_date'] | format_date }}</td>
+                            <td>{{ booking['end_date'] | format_date }}</td>
+                            <td>{{ booking['booking_id'] | capitalize }}</td>
+                            <td>{{ booking['type'] | capitalize }}</td>
+                            <td>${{ booking['price_per_night'] }}</td>
+                            <td>${{ booking['total_paid'] }}</td>
+                            <td>{{ booking['status'] | title }}</td>
+                            <td>
+                                {% if booking['status'] == "confirmed" %}
+                                <a class="btn btn-theme"
+                                    href="{{ url_for('customer.customer_managebookings') }}">Manage</a>
+                                {% elif booking['status'] == "confirmed/no-show" %}
+                                <!-- Do not show the Manage button -->
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>No bookings found.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

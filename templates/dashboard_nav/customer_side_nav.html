@@ -1,0 +1,56 @@
+    <!-- Side bar -->
+    <nav id="sidebarMenu" class="sidebar col-sm-3 col-md-3 col-lg-2 d-sm-block d-none sidebar collapse">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#sidebarMenu"
+            aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle sidebar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <!-- Profile section starts here -->
+        <div class="mx-3 mt-5 mb-3 text-center">
+            <!-- Displaying the profile image static folder -->
+            <img src="{{ url_for('static', filename='customer/%s' % customer_info.profile_image) }}" alt="profile_image"
+                class="rounded-circle-2">
+            <!-- Displaying the first and last name with the first letter capitalized -->
+            <h5 class="mt-3 text-black d-none d-sm-block">{{ customer_info.first_name | capitalize }} {{
+                customer_info.last_name | capitalize }}</h5>
+        </div>
+
+        <!-- Navigation links start here -->
+        <div class="list-group list-group-flush mx-3 mt-4">
+            <!-- Link to the make order -->
+            <a href="{{ url_for('customer.product') }}" class="list-group-item list-group-item-action py-2 ripple d-flex align-items-center">
+                <i class="bi bi-cart-check me-2"></i>
+                <span class="ms-1 nav-text d-sm-inline">Order Now</span>
+            </a>
+
+            <!-- Link to the make order -->
+            <a href="{{ url_for('customer.booking_room') }}" class="list-group-item list-group-item-action py-2 ripple d-flex align-items-center">
+                <i class="bi bi-book me-2"></i>
+                <span class="ms-1 nav-text d-sm-inline">Book Now</span>
+            </a>
+
+            <!-- Link to the order page -->
+            <a href="{{ url_for('customer.orders') }}" class="list-group-item list-group-item-action py-2 ripple d-flex align-items-center">
+                <i class="bi bi-card-checklist me-2"></i>
+                <span class="ms-1 nav-text d-sm-inline">My Orders</span>
+            </a>
+
+            <!-- Link to the booking page -->
+            <li class="list-group-item list-group-item-action py-2 ripple">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-calendar-check me-2"></i>
+                    <a href="#bookingsSubmenu" data-bs-toggle="collapse" aria-expanded="false"
+                        class="dropdown-toggle ms-1 nav-text d-sm-inline">My Bookings</a>
+                </div>
+                <ul class="collapse list-unstyled" id="bookingsSubmenu">
+                    <li><a class="dropdown-item" href="{{ url_for('customer.customer_managebookings') }}">Manage bookings</a></li>
+                    <li><a class="dropdown-item" href="{{ url_for('customer.customer_viewallbookings') }}">View all bookings</a></li>
+                </ul>
+            </li>
+
+            <!-- Link to the chat page -->
+            <a href="{{ url_for('customer.customer_chat', staff_id=staff_id) }}" class="list-group-item list-group-item-action py-2 ripple d-flex align-items-center">
+                <i class="bi bi-chat-dots me-2"></i>
+                <span class="ms-1 nav-text d-sm-inline">Chat with Staff</span>
+            </a>
+        </div>
+    </nav>

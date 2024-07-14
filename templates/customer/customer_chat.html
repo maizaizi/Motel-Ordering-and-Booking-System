@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat History{% endblock %}
+
+{% block content %}
+<div class="content">
+    <!-- insert customer_top_nav.html -->
+    {% include 'dashboard_nav/customer_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- insert customer_side_nav.html -->
+            {% include 'dashboard_nav/customer_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <h1>Chat History</h1>
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Chat Room</h2>
+                    </div>
+                    <div class="card-body" id="chat-body">
+                        <div id="messages" class="mb-3" style="height: 400px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px;">
+                            <!-- Messages will be appended here -->
+                        </div>
+                        <form id="chat-form" action="" method="POST">
+                            <div class="input-group">
+                                <input type="text" id="message" class="form-control" placeholder="Type a message...">
+                                <div class="input-group-append ms-2">
+                                    <button type="submit" class="btn btn-theme input-group-btn">Send</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port + '/customer');
+    var form = document.getElementById('chat-form');
+    var input = document.getElementById('message');
+    var messages = document.getElementById('messages');
+
+    var room = 'customer_{{ customer_info.customer_id }}';
+    var user_id = '{{ customer_info.customer_id }}';
+
+    // Function to format the date to New Zealand time
+    function formatDateTime(dateString, subtractHours = 0) {
+        const date = new Date(dateString);
+        date.setHours(date.getHours() - subtractHours);  // Subtract hours if necessary
+        const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        return date.toLocaleString('en-NZ', options);
+    }
+
+    // Fetch chat history
+    fetch(`/customer/chat_history`)
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(msg => {
+                msg.sent_at = formatDateTime(msg.sent_at, 12);  // Subtract 12 hours for historical messages
+                appendMessage(msg, messages);
+            });
+            messages.scrollTop = messages.scrollHeight;
+        });
+
+    socket.emit('join', {
+        user_id: user_id,
+        room: room
+    });
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var message = input.value.trim();
+        if (message) {
+            var sentAt = new Date();
+            var newMessage = {
+                user_id: user_id,
+                message: message,
+                room: room,
+                sent_at: sentAt.toISOString()
+            };
+            appendMessage({
+                message_id: 'temp_' + sentAt.getTime(), // Temporary ID for the new message
+                sender_type: 'customer',
+                content: message,
+                sent_at: formatDateTime(sentAt), // Format the date for display without subtraction
+                customer_id: user_id
+            }, messages);  // Append message immediately
+            socket.emit('message', newMessage);
+            input.value = '';  // Clear input field
+            messages.scrollTop = messages.scrollHeight;
+        }
+    });
+
+    socket.on('message', function(data) {
+        // Format sent_at to New Zealand time
+        data.sent_at = formatDateTime(data.sent_at);
+        // Remove temporary message if exists
+        var tempMsg = document.querySelector(`div[data-id='temp_${new Date(data.sent_at).getTime()}']`);
+        if (tempMsg) {
+            tempMsg.remove();
+        }
+        appendMessage(data, messages);
+        messages.scrollTop = messages.scrollHeight;
+    });
+
+    
+    function messageExists(messageId) {
+        return Array.from(messages.children).some(m => m.getAttribute('data-id') === messageId);
+    }
+
+    
+    function appendMessage(msg, messages) {
+    // Check if message already exists to avoid duplication
+    if (!messageExists(msg.message_id)) {
+        var item = document.createElement('div');
+        item.setAttribute('data-id', msg.message_id);  // Add a unique identifier
+        var sender = msg.sender_type.charAt(0).toUpperCase() + msg.sender_type.slice(1);
+        if (msg.staff_id) {
+            sender += ` (Staff ID: ${msg.staff_id})`;
+        } else if (msg.manager_id) {
+            sender += ` (Manager ID: ${msg.manager_id})`;
+        }
+        item.textContent = sender + ': ' + msg.content + ' (' + msg.sent_at + ')';
+
+        // Add styling for left or right alignment
+        if (msg.sender_type === 'customer') {
+            item.style.backgroundColor = '#f1f0f0';  // Light gray background for customer
+            item.style.float = 'right';
+        } else if (msg.sender_type === 'staff') {
+            item.style.backgroundColor = '#dcf8c6';  // Light green background for staff
+            item.style.float = 'left';
+        } else if (msg.sender_type === 'manager') {
+            item.style.backgroundColor = '#add8e6';  // Light blue background for manager
+            item.style.float = 'left';
+        }
+        item.style.clear = 'both';
+        item.style.padding = '10px';
+        item.style.margin = '5px';
+        item.style.borderRadius = '10px';
+        item.style.maxWidth = '60%'; 
+        messages.appendChild(item);
+    }
+}
+});
+</script>
+{% endblock %}

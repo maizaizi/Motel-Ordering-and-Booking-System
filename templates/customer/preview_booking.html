@@ -1,0 +1,283 @@
+{% extends 'base.html' %}
+
+{% block title %}Preview Booking{% endblock %}
+
+{% block navbar %}
+{% include 'home/home_nav.html' %}
+{% endblock %}
+
+{% block content %}
+
+<style>
+    .card {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+        transition: 0.3s;
+        border-radius: 5px;
+    }
+
+    .card:hover {
+        box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0069d9;
+        border-color: #0062cc;
+    }
+</style>
+<div class="container mb-5 mt-5">
+    <h1>Preview Your Booking</h1>
+    <div class="row">
+        <div class="col-md-8">
+            <img src="{{ url_for('static', filename='home/' + room.image) }}" class="img-fluid" alt="Room Image">
+            <h2>Facilities</h2>
+            <ul class="list-inline">
+                <li class="list-inline-item"><i class="fas fa-parking"></i> Parking</li>
+                <li class="list-inline-item"><i class="fas fa-wifi"></i> Free WiFi</li>
+                <li class="list-inline-item"><i class="fas fa-snowflake"></i> Air Conditioning</li>
+                <li class="list-inline-item"><i class="fas fa-tv"></i> Smart TV</li>
+            </ul>
+            <h3>Overview</h3>
+            <p>{{ room.description }}</p>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">Total NZD${{ '%.2f'|format(total_price) }}</h3>
+                    <p class="card-text">Your selected dates: </p>
+                    <p>Start Date: {{ start_date }}</p>
+                    <p>End Date: {{ end_date }}</p>
+                    <p>Guests: {{ adults }} Adults{% if children2_17 != '0' %}, {{ children2_17 }} Children (2-17 years
+                        old){% endif %}{% if children0_2 != '0' %}, {{ children0_2 }} Children (0-2 years old){% endif
+                        %}</p>
+                    <p>Room Type: {{ room.type }}</p>
+                    <div class="cancellation-policy">
+                        <p><b>Cancellation:</b> Full refund if canceled 24 hours prior to arrival. No refund otherwise.
+                        </p>
+                    </div>
+                    <form method="post" action="{{ url_for('customer.booking_payment') }}">
+                        <input type="hidden" name="room_id" value="{{ room.accommodation_id }}">
+                        <input type="hidden" name="start_date" value="{{ start_date }}">
+                        <input type="hidden" name="end_date" value="{{ end_date }}">
+                        <input type="hidden" name="adults" value="{{ adults }}">
+                        <input type="hidden" name="children" value="{{ children }}">
+                        <input type="hidden" name="children_0_2" value="{{ children0_2 }}">
+                        <input type="hidden" name="children_2_17" value="{{ children2_17 }}">
+                        <input type="hidden" name="total_price_hidden" value="{{ '%.2f'|format(total_price) }}">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#checkoutModal">Pay Now</button>
+                    </form>
+                    <h4 class="mt-4">Price Details</h4>
+                    <p>Room Price: NZD ${{ '%.2f'|format(room.price_per_night) }}</p>
+                    <p>Includes taxes and charges</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Checkout Modal -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="checkoutModalLabel">Checkout</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="payment-form" action="{{ url_for('customer.booking_payment') }}" method="post"
+                    class="needs-validation" novalidate>
+                    <input type="hidden" name="room_id" value="{{ room.accommodation_id }}">
+                    <input type="hidden" name="start_date" value="{{ start_date }}">
+                    <input type="hidden" name="end_date" value="{{ end_date }}">
+                    <input type="hidden" name="adults" value="{{ adults }}">
+                    <input type="hidden" name="children_0_2" value="{{ children0_2 }}">
+                    <input type="hidden" name="children_2_17" value="{{ children2_17 }}">
+                    <input type="hidden" name="total_price_hidden" value="{{ '%.2f'|format(total_price) }}">
+                    <div class="mb-3">
+                        <label for="card_number" class="form-label">Card number:<span
+                                class="require-star">*</span></label>
+                        <input type="text" class="form-control" id="card_number" name="card_number" maxlength="19"
+                            required>
+                        <div class="invalid-feedback text-start">
+                            Please enter the credit card number.
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="card_holder" class="form-label">Name on card:<span
+                                class="require-star">*</span></label>
+                        <input type="text" class="form-control" id="card_holder" name="card_holder" required>
+                        <div class="invalid-feedback text-start">
+                            Please enter the credit card holder name.
+                        </div>
+                    </div>
+                    <div class="mb-3 row justify-content-between">
+                        <div class="col-5">
+                            <label for="expiry_m" class="form-label">Expire Date:<span
+                                    class="require-star">*</span></label>
+                            <div class="d-flex">
+                                <div class="col-8 me-2">
+                                    <select id="expiry_m" name="expiry_m" required class="form-select"
+                                        aria-label="Default select example">
+                                        <option disabled selected value>MM</option>
+                                        {% for month in range(1, 13) %}
+                                        <option value="{{ month }}">{{ month }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="invalid-feedback text-start">
+                                        Please select expire month.
+                                    </div>
+                                </div>
+                                <div class="col-8">
+                                    <select id="expiry_y" name="expiry_y" required class="form-select"
+                                        aria-label="Default select example">
+                                        <option disabled selected value>YY</option>
+                                        {% for year in range(current_year, current_year + 10) %}
+                                        <option value="{{ year }}">{{ year }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div class="invalid-feedback text-start">
+                                        Please select expire year.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <label for="cvc" class="form-label">CVC:<span class="require-star">*</span></label>
+                            <input type="text" class="form-control" id="cvc" name="cvc" maxlength="3" minlength="3"
+                                required>
+                            <div class="invalid-feedback text-start">
+                                Please enter CVC number (3 digits).
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <p style="font-size:14px;">We accept Visa, Mastercard and American Express</p>
+                    </div>
+                    <div class="mb-3">
+                        <img src="{{url_for('static',filename='images/visacard-footer.png')}}" alt="visacard"
+                            class="card-logo">
+                        <img src="{{url_for('static',filename='images/mastercard-footer.png')}}" alt="mastercard"
+                            class="card-logo">
+                        <img src="{{url_for('static',filename='images/americanexpress-footer.png')}}"
+                            alt="americanexpress" class="card-logo" style="width: 50px;">
+                    </div>
+                    <div class="row mb-3 justify-content-between">
+                        <div class="text-center py-3 col-5">
+                            <button type="button" class="btn btn-secondary col-12"
+                                data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                        <div class="text-center py-3 col-5">
+                            <button type="submit" id="submitPayment" class="btn btn-danger col-12">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script>
+    (function () {
+        'use strict';
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const cardHolderInput = document.getElementById('card_holder');
+    cardHolderInput.addEventListener('input', function() {
+        const value = cardHolderInput.value;
+        const regex = /^[A-Za-z\s]+$/;
+        if (regex.test(value)) {
+            cardHolderInput.classList.remove('is-invalid');
+        } else {
+            cardHolderInput.classList.add('is-invalid');
+        }
+    });
+
+    const cardNumberInput = document.getElementById('card_number');
+    const feedbackElement = cardNumberInput.nextElementSibling;
+
+    cardNumberInput.addEventListener('input', function() {
+        const value = cardNumberInput.value.replace(/\D/g, '');
+        if (value.length === 16) {
+            cardNumberInput.classList.remove('is-invalid');
+            cardNumberInput.classList.add('is-valid');
+            feedbackElement.textContent = 'Valid card number';
+            feedbackElement.style.color = 'green';
+        } else {
+            cardNumberInput.classList.remove('is-valid');
+            cardNumberInput.classList.add('is-invalid');
+            feedbackElement.textContent = 'Invalid card number';
+            feedbackElement.style.color = 'red';
+        }
+    });
+
+    var today = new Date();
+    var currentMonth = today.getMonth() + 2; // Current month start with 0
+    var currentYear = today.getFullYear();
+
+    var expiryMonthSelect = document.getElementById('expiry_m');
+    var expiryYearSelect = document.getElementById('expiry_y');
+
+    // Populate next 10 years
+    for (var year = currentYear; year <= currentYear + 10; year++) {
+        var option = document.createElement('option');
+        option.value = year; // Full year
+        option.text = year;
+        expiryYearSelect.appendChild(option);
+    }
+
+    // Poulate months
+    function populateExpiryMonths(selectedYear) {
+        expiryMonthSelect.innerHTML = ''; // Remove all options
+        var startMonth = selectedYear == currentYear ? currentMonth : 1; // Start from current month
+        for (var month = startMonth; month <= 12; month++) {
+            var option = document.createElement('option');
+            option.value = month < 10 ? '0' + month : month;
+            option.text = month < 10 ? '0' + month : month;
+            expiryMonthSelect.appendChild(option);
+        }
+    }
+
+    // When the year changes, update the months
+    expiryYearSelect.addEventListener('change', function() {
+        populateExpiryMonths(parseInt(this.value)); // Use current year
+    });
+});
+
+    $(function () {
+        $('input[name="daterange"]').daterangepicker({
+            opens: 'left',
+            minDate: moment(),
+            maxDate: moment().add(1, 'year'),
+            locale: {
+                format: 'DD/MM/YYYY'
+            }
+        });
+    });
+</script>
+{% endblock %}

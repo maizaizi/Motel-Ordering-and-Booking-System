@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Booking Calendar{% endblock %}
+
+{% block content %}
+<div class="content">
+    {% include 'dashboard_nav/manager_top_nav.html' %}
+    <div class="container-fluid">
+        <div class="row">
+            {% include 'dashboard_nav/manager_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+                <div class="align-items-center justify-content-between mb-4">
+                    <h1 class="mb-4">Manage Booking Calendar</h1>
+                    <!-- Form to Block/Unblock Dates -->
+                    <form id="blockForm" class="mb-4" method="post"
+                        action="{{ url_for('manager.manage_accommodation') }}">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="accommodation_id" class="form-label">Accommodation Type</label>
+                                <select id="accommodation_id" name="accommodation_id" class="form-control" required>
+                                    {% for accommodation in accommodations %}
+                                    <option value="{{ accommodation.accommodation_id }}">{{ accommodation.type }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="start_date" class="form-label">Block Start Date</label>
+                                <input type="date" id="start_date" name="start_date" class="form-control" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="end_date" class="form-label">Block End Date</label>
+                                <input type="date" id="end_date" name="end_date" class="form-control" required>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <div>
+                                    <button type="submit" name="action" value="block" class="btn btn-warning mb-2">Block
+                                        Dates</button>
+                                    <button type="submit" name="action" value="unblock"
+                                        class="btn btn-theme mb-2">Unblock Dates</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Search Block Start Date Form -->
+                    <div class="search-form-input-wrapper mb-4">
+                        <label for="search_start_date" class="form-label text-contrast">Search Block Start Date:</label>
+                        <div class="d-flex align-items-center">
+                            <input type="date" id="search_start_date" class="date form-control hasDatepicker me-2"
+                                value="" placeholder="Search Block Start Date" style="width: auto;">
+                            <button class="btn btn-theme search-btn me-2" type="button"
+                                onclick="searchBlockedDates('current')">
+                                <i class="fa fa-search"></i> Search
+                            </button>
+                            <button class="btn btn-success" type="button" onclick="refreshBlockedDates('current')">
+                                <i class="fa fa-refresh"></i> Show All Blocks
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabs for Current Blocked Dates and Blocked Dates History -->
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {% if current_tab == 'current' %}active{% endif %}" id="current-tab"
+                                data-bs-toggle="tab" data-bs-target="#current" type="button" role="tab"
+                                aria-controls="current" aria-selected="true">Active Blocked Dates</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link {% if current_tab == 'history' %}active{% endif %}" id="history-tab"
+                                data-bs-toggle="tab" data-bs-target="#history" type="button" role="tab"
+                                aria-controls="history" aria-selected="false">Blocked Dates History</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        <!-- Active Blocked Dates -->
+                        <div class="tab-pane fade {% if current_tab == 'current' %}show active{% endif %}" id="current"
+                            role="tabpanel" aria-labelledby="current-tab">
+                            <div class="table-responsive mt-3">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Accommodation Type</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Blocked By</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if current_blocked_dates %}
+                                        {% for block in current_blocked_dates %}
+                                        <tr>
+                                            <td>{{ block.type }}</td>
+                                            <td>{{ block.start_date | format_date }}</td>
+                                            <td>{{ block.end_date | format_date }}</td>
+                                            <td>{{ block.first_name | capitalize }} {{ block.last_name | capitalize }}</td>
+                                            <td>
+                                                <form method="post"
+                                                    action="{{ url_for('manager.manage_accommodation') }}">
+                                                    <input type="hidden" name="accommodation_id"
+                                                        value="{{ block.accommodation_id }}">
+                                                    <input type="hidden" name="start_date"
+                                                        value="{{ block.start_date }}">
+                                                    <input type="hidden" name="end_date" value="{{ block.end_date }}">
+                                                    <button type="submit" name="action" value="unblock"
+                                                        class="btn btn-theme btn-sm">Unblock</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="5">No active blocked dates found.</td>
+                                        </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                                <!-- Pagination for Active Blocked Dates -->
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination justify-content-center">
+                                        {% for page_num in range(1, total_pages_current + 1) %}
+                                        <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                                            <a class="page-link"
+                                                href="{{ url_for('manager.manage_accommodation', current_page=page_num, history_page=history_page, tab='current', search_start_date=search_start_date) }}">{{
+                                                page_num }}</a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+
+                        <!-- Blocked Dates History -->
+                        <div class="tab-pane fade {% if current_tab == 'history' %}show active{% endif %}" id="history"
+                            role="tabpanel" aria-labelledby="history-tab">
+                            <div class="table-responsive mt-3">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Accommodation Type</th>
+                                            <th>Start Date</th>
+                                            <th>End Date</th>
+                                            <th>Action</th>
+                                            <th>Action By</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% if blocked_dates_history %}
+                                        {% for block in blocked_dates_history %}
+                                        <tr>
+                                            <td>{{ block.type | title }}</td>
+                                            <td>{{ block.start_date | format_date }}</td>
+                                            <td>{{ block.end_date | format_date }}</td>
+                                            <td>{{ 'Blocked' if block.is_active else 'Unblocked' }}</td>
+                                            <td>{{ block.first_name | capitalize }} {{ block.last_name | capitalize }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="5">No blocked dates history found.</td>
+                                        </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                                <!-- Pagination for Blocked Dates History -->
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination justify-content-center">
+                                        {% for page_num in range(1, total_pages_history + 1) %}
+                                        <li class="page-item {% if page_num == history_page %}active{% endif %}">
+                                            <a class="page-link"
+                                                href="{{ url_for('manager.manage_accommodation', current_page=current_page, history_page=page_num, tab='history', search_start_date=search_start_date_history) }}">{{
+                                                page_num }}</a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function searchBlockedDates(tab) {
+        var searchDate = tab === 'current' ? document.getElementById('search_start_date').value : document.getElementById('search_start_date_history').value;
+        var url = new URL(window.location.href);
+        url.searchParams.set('search_start_date', searchDate);
+        url.searchParams.set('tab', tab);
+        window.location.href = url.toString();
+    }
+
+    function refreshBlockedDates(tab) {
+        var url = new URL(window.location.href);
+        url.searchParams.delete('search_start_date');
+        url.searchParams.set('tab', tab);
+        window.location.href = url.toString();
+    }
+
+    function setMinDate(inputId) {
+        var today = new Date();
+        var tzOffset = today.getTimezoneOffset() * 60000;
+        var localISOTime = (new Date(today - tzOffset)).toISOString().split('T')[0];
+        document.getElementById(inputId).min = localISOTime;
+    }
+
+    setMinDate('start_date');
+    setMinDate('end_date');
+</script>
+
+{% endblock %}

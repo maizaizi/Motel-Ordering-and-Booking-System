@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Dashboard{% endblock %}
+
+{% block content %}
+<!-- card height adjustment the same -->
+<style>
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .card {
+        height: 100%;
+    }
+</style>
+<div class="content">
+    <!-- insert customer_top_nav.html -->
+    {% include 'dashboard_nav/customer_top_nav.html' %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- insert customer_side_nav.html -->
+            {% include 'dashboard_nav/customer_side_nav.html' %}
+            <div class="col-xs-12 col-sm-9 ml-sm-auto col-lg-9 px-md-4 py-4 mx-auto mt-5 mb-5">
+
+                <h1>Manage My Bookings</h1>
+                <div class="row card-container">
+                    {% if bookings %}
+                    {% for booking in bookings %}
+                    <div class="col-xl-6 col-lg-6 col-md-12 mb-4">
+                        <div class="card">
+                            <img class="card-img-top" src="{{ url_for('static', filename='home/' + booking.image) }}"
+                                alt="Accommodation Image" style="width: 100%; height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ booking.type }}</h5>
+                                <p class="card-text" style="text-align: justify;">{{ booking.description }}</p>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">Check in Date: {{ booking.start_date|format_date }}</li>
+                                    <li class="list-group-item">Check out Date: {{ booking.end_date|format_date }}</li>
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>Adults: {{ booking.adults }}</div>
+                                            <div style="flex-grow: 1; text-align: center;">Children: {{ booking.children
+                                                }}</div>
+                                            <div></div>
+                                        </div>
+                                    </li>
+                                    <li class="list-group-item">Price Per Night: ${{ booking.price_per_night }}</li>
+                                    <li class="list-group-item">Status: {{ booking.status | capitalize }}</li>
+                                    <li class="list-group-item">Paid: {{ 'Yes' if booking.is_paid else 'No' }}</li>
+                                </ul>
+                                <!-- Cancel Button -->
+                                <div class="text-center mt-3">
+                                    <button class="btn btn-danger"
+                                        onclick="confirmCancellation({{ booking.booking_id }})">Cancel Booking</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p>No bookings found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        function confirmCancellation(bookingId) {
+            if (confirm("Are you sure you want to cancel this booking?")) {
+                window.location.href = "{{ url_for('customer.cancel_booking') }}?booking_id=" + bookingId;
+            }
+        }
+    </script>
+
+{% endblock %}
